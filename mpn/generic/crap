@@ -1,0 +1,2 @@
+ASSERT(n>0);
+ASSERT_MPN(x,n);ASSERT_MPN(y,n);ASSERT_MPN(z,n);//ASSERT_SPACE(t,n);
