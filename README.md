@@ -4,3 +4,6 @@ To build an ASM optimized version, you will have to install Yasm assembler (http
  
 The modified sources (only renamed the mpir.lib in lib_mpir_gc to mpir_a.lib) is available under https://github.com/winlibs/mpir .
  
+Building for PHP:
+
+PHP requires the VC9 build of the MPIR library. Follow the instructions from build.vc9/readme.txt .
