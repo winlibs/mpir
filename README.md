@@ -1,3 +1,4 @@
+# MPIR
 
 MPIR is built using VC9 projects files. No patch are necessary but to rename
 the library to mpir_a.lib. Follow the instructions in the readme.txt in the
@@ -7,3 +8,7 @@ To build an ASM optimized version, you will have to install
 [Yasm](http://www.tortall.net/projects/yasm/) assembler. Complete instructions
 are available
 [here](http://www.tortall.net/projects/yasm/wiki/VisualStudio2005).
+
+### Building for PHP
+
+PHP requires the VC9 build of the MPIR library. Follow the instructions from build.vc9/readme.txt .
