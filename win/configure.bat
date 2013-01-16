@@ -126,7 +126,7 @@ exit /b 1
 
 :: set config.params.bat to the settings needed by make etc
 echo (set LIBTYPE=%LIBTYPE%) > config.params.bat
-echo (set FLAGS=/Ox /Ot /D "NDEBUG" /D "HAVE_CONFIG_H" /nologo /D "_MBCS" /GS-) >> config.params.bat
+echo (set FLAGS=/Ox /Ot /D "NDEBUG" /D "HAVE_CONFIG_H" /nologo /D "_MBCS" /GS- /Zi /Fd"mpir_a.pdb") >> config.params.bat
 if %LIBTYPE% == lib (set FLAGS1=/Oi /D "_LIB" /D "PIC" /MT)
 if %LIBTYPE% == dll (set FLAGS1=/D "__GMP_LIBGMP_DLL" /D "_WINDLL" /GF /EHsc /MD)
 echo (set FLAGS1=%FLAGS1%) >> config.params.bat
