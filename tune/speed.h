@@ -251,16 +251,14 @@ double speed_mpn_mul_1 _PROTO ((struct speed_params *s));
 double speed_mpn_mul_1_inplace _PROTO ((struct speed_params *s));
 double speed_mpn_mul_2 _PROTO ((struct speed_params *s));
 double speed_mpn_mul_basecase _PROTO ((struct speed_params *s));
-double speed_mpn_mul_fft _PROTO ((struct speed_params *s));
-double speed_mpn_mul_fft_sqr _PROTO ((struct speed_params *s));
-double speed_mpn_mul_fft_full _PROTO ((struct speed_params *s));
-double speed_mpn_mul_fft_full_sqr _PROTO ((struct speed_params *s));
+double speed_mpn_mul_fft_main _PROTO ((struct speed_params *s));
+double speed_mpn_sqr_fft_main _PROTO ((struct speed_params *s));
 double speed_mpn_mul_n _PROTO ((struct speed_params *s));
 double speed_mpn_mul_n_sqr _PROTO ((struct speed_params *s));
 double speed_mpn_mullow_n _PROTO ((struct speed_params *s));
 double speed_mpn_mulhigh_n _PROTO ((struct speed_params *s));
 double speed_mpn_mulmod_2expm1 _PROTO ((struct speed_params *s));
-double speed_mpn_mulmod_2expp1 _PROTO ((struct speed_params *s));
+double speed_mpn_mulmod_2expp1_basecase _PROTO ((struct speed_params *s));
 double speed_mpn_mullow_n_basecase _PROTO ((struct speed_params *s));
 double speed_mpn_nand_n _PROTO ((struct speed_params *s));
 double speed_mpn_nior_n _PROTO ((struct speed_params *s));
@@ -1179,8 +1177,8 @@ int speed_routine_count_zeros_setup _PROTO ((struct speed_params *s,
     return t;								\
   }
 
-/* For mpn_mulmod_2expp1 , xsize=r, ysize=s->size. */
-#define SPEED_ROUTINE_MPN_MULMOD_2EXPP1(function)			\
+/* For mpn_mulmod_2expp1_basecase , xsize=r, ysize=s->size. */
+#define SPEED_ROUTINE_MPN_MULMOD_2EXPP1_BASECASE(function)			\
   {									\
     mp_ptr    wp,temps;							\
     unsigned  i;							\
@@ -1747,14 +1745,14 @@ int speed_routine_count_zeros_setup _PROTO ((struct speed_params *s,
     mp_limb_t inv;                                             \
     double    t;							\
     TMP_DECL;								\
-									\
+	                                      \
     SPEED_RESTRICT_COND (s->size >= 2);					\
 									\
     TMP_MARK;								\
     SPEED_TMP_ALLOC_LIMBS (a, 4*s->size, s->align_xp);			\
     SPEED_TMP_ALLOC_LIMBS (d, 2*s->size,   s->align_yp);			\
     SPEED_TMP_ALLOC_LIMBS (q, 2*s->size, s->align_wp);			\
-    SPEED_TMP_ALLOC_LIMBS (tmp, 2*tsize,   s->align_wp2);			\
+    SPEED_TMP_ALLOC_LIMBS (tmp, tsize,   s->align_wp2);			\
     								\
     MPN_COPY (a, s->xp, s->size);					\
     MPN_COPY (a+s->size, s->xp, s->size);				\
@@ -1784,7 +1782,6 @@ int speed_routine_count_zeros_setup _PROTO ((struct speed_params *s,
       function(q, a, d, 2*s->size, inv, tmp);								\
     } while (--i != 0);							\
     t = speed_endtime ();						\
-									\
     TMP_FREE;								\
     return t;								\
   }

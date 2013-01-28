@@ -51,7 +51,7 @@ if %PROCESSOR_ARCHITECTURE% == x86 ( set ARCH=32)
 set VCTARGET=
 if %ARCH% == 64 (
 	if %ABI% == 64 (set VCTARGET=amd64)
-	if %ABI% == 32 (set VCTARGET=x86_amd64)
+	if %ABI% == 32 (set VCTARGET=x86)
 )
 if %ARCH% == 32 (
 	if %ABI% == 64 (set VCTARGET=amd64_x86)
@@ -126,7 +126,7 @@ exit /b 1
 
 :: set config.params.bat to the settings needed by make etc
 echo (set LIBTYPE=%LIBTYPE%) > config.params.bat
-echo (set FLAGS=/Ox /Ot /D "NDEBUG" /D "HAVE_CONFIG_H" /nologo /D "_MBCS" /GS- /Zi /Fd"mpir_a.pdb") >> config.params.bat
+echo (set FLAGS=/Ox /Ot /D "NDEBUG" /D "HAVE_CONFIG_H" /nologo /D "_MBCS" /GS-) >> config.params.bat
 if %LIBTYPE% == lib (set FLAGS1=/Oi /D "_LIB" /D "PIC" /MT)
 if %LIBTYPE% == dll (set FLAGS1=/D "__GMP_LIBGMP_DLL" /D "_WINDLL" /GF /EHsc /MD)
 echo (set FLAGS1=%FLAGS1%) >> config.params.bat

@@ -5,9 +5,9 @@ Building MPIR with Microsoft Visual Studio 2010
 A Note On Licensing
 ===================
 
-Files in this distribution that have been created by me for use in 
-building MPIR with Microsoft Visual Studio 2010 are provided under 
-the terms of the LGPL v2.1+ license.
+Files in this distribution that have been created for use in building 
+MPIR with Microsoft Visual Studio 2010 are provided under the terms of
+the LGPL v2.1+ license.
 
 The MPIR library uses numerous files which are LGPL v3+ and so the 
 overall license of the library distribution is LGPL v3+.  Some of 
@@ -16,21 +16,22 @@ the demos are GPL.
 Using the Assembler Based Build Projects
 ========================================
 
-If you wish to use the assembler files you will need VSYASM, a 
-version of YASM x86/x64 assembler tailored specifically for use with
-Microsoft Visual Studio 2010.  You will need a recent revision of 
-YASM from:
+If you wish to use the assembler files you will need VSYASM, a version 
+of YASM x86/x64 assembler tailored specifically for use with Microsoft 
+Visual Studio 2010.  You will need a recent revision of YASM from:
 
   http://www.tortall.net/projects/yasm/
 
-This assembler should be placed in the bin directory used by VC++, 
-which, for Visual Stduio 2010, is typically:
+This assembler (you need vsyasm.exe, NOT yasm.exe) should be placed
+in the bin directory used by VC++, which, for Visual Stduio 2010, is
+typically:
 
  C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin
  
 You will need to install Python if you wish to use the scripts that 
-automate the MPIR and MPFR tests. Otherwise these have to be compiled
-and run manually.
+automate the generation of MPIR build files for Visual Studio. Python
+is also needed for running the MPIR tests (although they can be run
+manually).
 
 Compiling MPIR with the Visual Studio C/C++
 ===========================================
@@ -49,54 +50,76 @@ If necessary, these changes can be removed by running the Python program
 Building MPIR
 =============
 
-The MPIR build is started by opening the Visual Studio C/C++ solution 
-file 'mpir.sln' in the build.vc10 directory.
+1. Generic C Builds
+===================
 
-MPIR is built by using the appropriate build projects and, where
-appropriate, setting the build configuration and platform:
+The basic build solution for Visual Studio contains build projects for
+the generic C version of MPIR.  The MPIR build is started by opening the
+Visual Studio C/C++ solution  file 'mpir.sln' in the build.vc10 directory.  
 
-    win32 or x64
-    release or debug
+It will be assumed here that the MPIR root directory is named 'mpir' so 
+that the build directory is mpir\build.vc10.  The output directories
+for builds are:
+
+    mpir\lib   for static libraries
+    mpir\dll   for dynamic link libraries (DLL)
+
+MPIR is built by selecting one of the individual build projects and then
+setting the library type (static or DLL), the Windows target architecture
+(win32 or x64) and the build configuration (release or debug).
 
 All projects have release and debug configurations but not all projects
-provide for 32 and 64 bit Windows platforms. 
+support win32 and x64.
 
-The supported platforms and library formats are as follows:   
-
-1. Generic Build Projects (both 32 and 64 bit)
+By default the Visual Studio solution provides support for these generic
+C builds: 
 
     lib_mpir_gc     - MPIR library using generic C (win32 & x64)
     lib_mpir_cxx    - MPIR C++ library (win32 & x64)
     dll_mpir_gc     - MPIR DLL using generic C (win32 & x64)
 
-2. 32-bit Build Projects
+There are two static libraries, one providing the C library functions and
+the other providing the C++ functions.  The DLL library supports both the
+C and the C++ functions.
 
-    lib_mpir_p0     - MPIR library using Pentium assembler (win32)
-    lib_mpir_p3     - MPIR library using Pentium III assembler (win32
-    lib_mpir_p4     - MPIR library using Pentium IV assembler (win32)
-    dll_mpir_p0     - MPIR DLL using Pentium assembler (win32)
-    dll_mpir_p3     - MPIR DLL using Pentium III assembler (win32)
-    dll_mpir_p4     - MPIR DLL using Pentium IV assembler (win32)
+2. Builds with Assembler Support
+================================
 
-3. 64-bit Build Projects
-    
-    lib_mpir_k8      - MPIR library using AMD k8 assembler (x64)
-    lib_mpir_k10     - MPIR library using AMD k10 assembler (x64)
-    lib_mpir_core2   - MPIR library Intel Core2 assembler (x64)
-    lib_mpir_nehalem - MPIR library Intel Core2 assembler (x64)
-    dll_mpir_k8      - MPIR DLL using AMD k8 assembler (x64)
-    dll_mpir_k8      - MPIR DLL using AMD k10 assembler (x64)
-    dll_mpir_core2   - MPIR DLL using Intel Core2 assembler (x64)
-    dll_mpir_nehalem - MPIR DLL using Intel Core2 assembler (x64)
+By default the Visual Studio solution for MPIR provides support for
+x64 builds with nassembler support for Intel core2 and nehalem and
+for the AMD k8.
+
+To build MPIR versions with assembler support for other processors,
+the Python program mpir_config.py has to be run before the Visual
+Studio solution is opened.  This outputs a list of the assembler
+builds that are available. After a particular build is selected the
+program outputs a Visual Studio project for this build and adds it
+to the Visual Studio solution.  When the Visual Studio solution file
+is then opened it will include this new build projects for both
+static library and DLL builds with the specified assembler support.
+
+3. The build Process
+====================
 
 Before any of these libraries is built the appropriate MPIR configuration
 file is generated and copied into config.h.  After a static library is 
 built its config.h file is copied into the output directory; the library 
-and its associated files are then copied to the 'lib' sub-directory 
-within the VC++ solution folder (build.vc10). Simlarly when a DLL is 
-built, the resulting DLL, its export libraries and its debug symbol file
-are copied to the files mpir.dll, mpir.exp, mpir.lib and mpir.pdb within 
-the 'dll' sub-directory.
+and its associated files are then copied to the appropriate sub-directory
+in the 'mpir\lib' sub-directory:
+
+   mpir\lib\win32\debug
+   mpir\lib\win32\release
+   mpir\lib\x64\debug
+   mpir\lib\x64\release
+
+Simlarly when a DLL is built, the resulting DLL, its export libraries and
+its debug symbol file are copied into the appropriate subdirectory in the
+mpir\dll subdirectory:
+
+   mpir\dll\win32\debug
+   mpir\dll\win32\release
+   mpir\dll\x64\debug
+   mpir\dll\x64\release
 
 This means that the 'dll' and 'lib' sub-directories respectively contain
 the last MPIR DLLs and static libraries built.  These are then the 
@@ -144,24 +167,6 @@ DLL) that has been built. To build the MPIR C+ library wrapper use:
 The DLL projects include the C++ functions so an additional library
 is not needed when they are used.
 
-Python Build File Generator
-===========================
-
-Only a limited number of build configurations are supported in the 
-VC++ IDE build.  If another build is needed, other configurations 
-can be created using the program mpir_build.py (Python 2.6 or later
-needs to be installed).
-
-When this program is run, it outputs a list of all available MPIR
-configurations and allows the user to select one of them.  It then
-creates VC++ IDE build projects for both a static library and DLL
-build for this configuaration. 
-
-These can then be added to a VC++ solution using the facilities of
-the IDE in the normal way.  The project and fillter files are named
-with the extensions *.2.vcxproj and *.2.vcxproj.filters to avoid 
-interfering with the project files already provided for VC++.
-
 The Tests
 =========
 
@@ -197,6 +202,10 @@ libraries both the desired version of MPIR and the C++ library must be
 built before the tests are built and run.  This is not necessary for
 MPIR DLLs as they contain the C++ routines.
 
+On multporcessoer systems Visual Studio 10 will typically run several 
+builds in parallel so it is advisable to build add-test-lib first before
+building the tests.  
+
 Test Automation
 ===============
 
@@ -229,6 +238,60 @@ The tests for cxx/locale and misc/locale fail to link because the test
 defines a symbol - localeconv - that is in the Microsoft runtime libraries.  
 This is not significant for MPIR numeric operations.  Some tests are skipped
 for the DLL verssion as they are not relevant in this case.
+
+Speed and Tuning
+================
+
+The speed and tuning programs are built using the speed.sln and tune.sln   
+solutions respectively.  Except for tune, these programs (and the program
+'try') can be built with both the static and dynamic library versions of
+MPIR but it is preferable to use the static library versions.
+
+MPIR on Windows x64
+===================
+
+Although Windows x64 is a 64-bit operating system, Microsoft has decided to
+make long integers 32-bits, which is inconsistent when compared with almost
+all other 64-bit operating systems.   This has caused many subtle bugs when   
+open source code is ported to Windows x64 because many developers reasonably
+expect to find that long integers on a 64-bit operating system will be 64 
+bits long.  
+
+MPIR contains functions with suffixes of _ui and _si that are used to input
+unsigned and signed integers into and convert them for use with MPIR's 
+multiple precision integers (mpz types).   For example, the functions:
+
+   void mpz_set_ui(mpz_t, unsigned long int)
+   void mpz_set_si(mpz_t, signed long int)
+
+set an mpz integer from unsigned and signed long integers respectively, and
+the functions:
+
+   unsigned long int mpz_get_ui(mpz_t)
+   signed long int mpz_get_ui(mpz_t)
+
+obtain unsigned and signed long int values from an MPIR multiple precision
+integer (mpz).
+
+To bring MPIR on Windows x64 into line with other 64-bit operating systems
+two new types have been introduced throughout MPIR:
+
+    mpir_ui    defined as unsigned long int on all but Windows x64
+	           defined as unsigned long long int on Windows x64
+
+    mpir_si    defined as signed long int on all but Windows x64
+	           defined as signed long long int on Windows x64
+
+The above prototypes in MPIR 2.6.0 are changed to:
+ 
+   void mpz_set_ui(mpz_t, mpir_ui)
+   void mpz_set_si(mpz_t, mpir_ui)
+
+   mpir_ui mpz_get_ui(mpz_t)
+   mpir_si mpz_get_si(mpz_t)
+
+and these changes are applied to all MPIR functions with _ui and _si
+suffixes.    
 
 Using MPIR
 ==========
@@ -370,7 +433,7 @@ file postbuild.bat which has the following steps:
 
 2. The final output directory is then creaated (mpir\build.vc10\lib
    or mpir\build.vc10\dll) relative to the Visual Stduio solution
-   directory (build,vc10).
+   directory (build.vc10).
    
 3. The file 'output_params.bat' is written describing the MPIR 
    configuration that has been built.  This is used to signal
@@ -398,4 +461,4 @@ My thanks to:
 4. Jeff Gilchrist for his help in testing, debugging and 
    improving the readme giving the VC++ build instructions
 
-       Brian Gladman, September 2011
+       Brian Gladman, October 2012

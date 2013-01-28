@@ -20,9 +20,11 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA. */
 
-#ifndef HAVE_STDINT_H 
+#if _MSC_VER >= 1600 && !defined( HAVE_STDINT_H ) 
 #  define HAVE_STDINT_H 1
 #endif
+
+#define HAVE_LITTLE_ENDIAN 1
 
 /* The gmp-mparam.h to update when tuning. */
 #undef GMP_MPARAM_H_SUGGEST
@@ -136,6 +138,10 @@ MA 02111-1307, USA. */
 /* Define if you have the <locale.h> header file. */
 #define HAVE_LOCALE_H		1
 
+/* now required by MPFR */
+#define HAVE_STRUCT_LCONV_DECIMAL_POINT 1
+#define HAVE_STRUCT_LCONV_THOUSANDS_SEP 1
+
 /* Define if the system has the type `long double'. */
 #define HAVE_LONG_DOUBLE	1
 
@@ -176,6 +182,9 @@ MA 02111-1307, USA. */
 
 /* Define if you have the `read_real_time' function. */
 #undef HAVE_READ_REAL_TIME
+
+#define HAVE_SIGNAL         1
+#define HAVE_SIGNAL_H       1
 
 /* Define if you have the `sigaction' function. */
 #undef HAVE_SIGACTION
@@ -362,7 +371,6 @@ MA 02111-1307, USA. */
 #define alloca _alloca
 #define HAVE_STRCASECMP		1
 #define HAVE_STRNCASECMP	1
-#define va_copy(d, s) (d) = (s)
 #define MSC_C_(x) #x  
 #define MSC_CC_(x)  MSC_C_(x)
 #define MSC_VERSION "Microsoft C++ (Version " MSC_CC_(_MSC_FULL_VER) ")"

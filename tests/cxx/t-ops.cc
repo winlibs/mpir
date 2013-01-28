@@ -19,8 +19,6 @@ along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA. */
 
-#include "config.h"
-
 #include <iostream>
 
 #include "mpir.h"
@@ -180,9 +178,9 @@ check_mpz (void)
     c = ai % b; ASSERT_ALWAYS(c == -1);
   }
   {
-    mpz_class a (LONG_MIN);
-    signed long ai = LONG_MIN;
-    mpz_class b = - mpz_class (LONG_MIN);
+    mpz_class a ((mpir_si)GMP_SI_MIN);
+    mpir_si ai = GMP_SI_MIN;
+    mpz_class b = - mpz_class ((mpir_si)GMP_SI_MIN);
     mpz_class c;
     c = a / b;  ASSERT_ALWAYS(c == -1);
     c = a % b;  ASSERT_ALWAYS(c == 0);

@@ -320,8 +320,8 @@ abilist="standard"
 #
 cclist="gcc cc"
 
-gcc_cflags="-O3"
-gcc_64_cflags="-O3"
+gcc_cflags="-O2"
+gcc_64_cflags="-O2"
 cc_cflags="-O"
 cc_64_cflags="-O"
 
@@ -1159,7 +1159,8 @@ case $host in
       X86_64_PATTERN)
         abilist="64 32"
         cclist_64="gcc cc"
-        gcc_64_cflags="-O2 -m64"
+        gcc_64_cflags="-m64"
+	gcc_cflags_opt="-O2 -O1"
 	case $host in
 	*-*-linux-gnu)
 	    gcc_64_ldflags="-Wl,-z,noexecstack" ;;
@@ -2167,8 +2168,8 @@ gmp_mpn_functions="$extra_functions					   \
   fib2_ui mod_1 mod_34lsub1 modexact_1c_odd preinv_divrem_1 preinv_mod_1 dump		   \
   gcd_subdiv_step gcdext_lehmer gcd_lehmer gcdext_1 hgcd gcdext_subdiv_step matrix22_mul hgcd2            \
   mod_1_1 mod_1_2 mod_1_3 tdiv_q mp_bases fib_table			\
-  mulmid_basecase mulmid mulmid_n toom42_mulmid	mulmod_2expp1 mulmod_2expm1	\
-  mul mul_fft mul_n mul_basecase sqr_basecase random random2 pow_1	   \
+  mulmid_basecase mulmid mulmid_n toom42_mulmid	mulmod_bexpp1 mulmod_2expm1	mulmod_2expp1_basecase \
+  mul mul_n mul_basecase sqr_basecase random random2 pow_1	   \
   urandomb urandomm randomb rrandom invert dc_divappr_q_n \	
   rootrem sqrtrem get_str set_str scan0 scan1 popcount hamdist cmp perfect_square_p \
   bdivmod gcd gcd_1 gcdext tdiv_qr jacobi_base get_d  \
@@ -2579,7 +2580,8 @@ for tmp_fn in $gmp_mpn_functions; do
           gmp_ep=[`
             sed -n 's/^[ 	]*MULFUNC_PROLOGUE(\(.*\))/\1/p' $tmp_file ;
             sed -n 's/^[ 	]*PROLOGUE(\([^,]*\).*)/\1/p' $tmp_file ;
-	    sed -n 's/[^G]*GLOBAL_FUNC[:space:]*\(.*\)/\1/p' $tmp_file
+            sed -n 's/^;[ 	]*PROLOGUE(\([^,]*\).*)/\1/p' $tmp_file ;
+            sed -n 's/[^G]*GLOBAL_FUNC[:space:]*\(.*\)/\1/p' $tmp_file ;
           `]
           for gmp_tmp in $gmp_ep; do
             AC_DEFINE_UNQUOTED(HAVE_NATIVE_$gmp_tmp)
@@ -3002,7 +3004,7 @@ case $host in
 esac
 AC_CONFIG_LINKS(yasm_mac.inc:$YASM_MAC_INC)
 
-AC_OUTPUT(Makefile mpf/Makefile mpn/Makefile mpq/Makefile mpz/Makefile printf/Makefile scanf/Makefile cxx/Makefile tests/Makefile tests/devel/Makefile tests/mpf/Makefile tests/mpn/Makefile tests/mpq/Makefile tests/mpz/Makefile tests/rand/Makefile tests/misc/Makefile tests/cxx/Makefile doc/Makefile tune/Makefile mpir.h:gmp-h.in)
+AC_OUTPUT(Makefile mpf/Makefile mpn/Makefile fft/Makefile mpq/Makefile mpz/Makefile printf/Makefile scanf/Makefile cxx/Makefile tests/Makefile tests/devel/Makefile tests/mpf/Makefile tests/mpn/Makefile tests/fft/Makefile tests/mpq/Makefile tests/mpz/Makefile tests/rand/Makefile tests/misc/Makefile tests/cxx/Makefile doc/Makefile tune/Makefile mpir.h:gmp-h.in)
 if test $enable_gmpcompat = yes; then
 	AC_OUTPUT(gmp.h:gmp-h.in)
 	if test $enable_cxx = yes ; then

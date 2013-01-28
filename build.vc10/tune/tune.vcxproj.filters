@@ -44,9 +44,6 @@
     <ClCompile Include="mullow_n.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mul_fft.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mul_n.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -137,6 +134,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\win_timing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\x64\release\gmp-impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

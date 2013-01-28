@@ -67,12 +67,6 @@ MA 02110-1301, USA. */
    limits are recompiled though, to make them accept a bigger range of sizes
    than normal, eg. mpn_sqr_basecase to compare against mpn_kara_sqr_n.
 
-   Limitations:
-
-   The FFTs aren't subject to the same badness rule as the other thresholds,
-   so each k is probably being brought on a touch early.  This isn't likely
-   to make a difference, and the simpler probing means fewer tests.
-
    Code: 
      - main : checks for various command line options and calls all()
      - all : prints the tuneup message, date and compiler, then calls
@@ -182,18 +176,14 @@ mp_size_t  mul_karatsuba_threshold      = MP_SIZE_T_MAX;
 mp_size_t  mul_toom3_threshold          = MUL_TOOM3_THRESHOLD_LIMIT;
 mp_size_t  mul_toom4_threshold          = MUL_TOOM4_THRESHOLD_LIMIT;
 mp_size_t  mul_toom8h_threshold         = MUL_TOOM8H_THRESHOLD_LIMIT;
-mp_size_t  mul_fft_threshold            = MP_SIZE_T_MAX;
 mp_size_t  mul_fft_full_threshold       = MP_SIZE_T_MAX;
-mp_size_t  mul_fft_modf_threshold       = MP_SIZE_T_MAX;
 mp_size_t  sqr_basecase_threshold       = MP_SIZE_T_MAX;
 mp_size_t  sqr_karatsuba_threshold
   = (TUNE_SQR_KARATSUBA_MAX == 0 ? MP_SIZE_T_MAX : TUNE_SQR_KARATSUBA_MAX);
 mp_size_t  sqr_toom3_threshold          = SQR_TOOM3_THRESHOLD_LIMIT;
 mp_size_t  sqr_toom4_threshold          = SQR_TOOM4_THRESHOLD_LIMIT;
 mp_size_t  sqr_toom8_threshold          = SQR_TOOM8_THRESHOLD_LIMIT;
-mp_size_t  sqr_fft_threshold            = MP_SIZE_T_MAX;
 mp_size_t  sqr_fft_full_threshold       = MP_SIZE_T_MAX;
-mp_size_t  sqr_fft_modf_threshold       = MP_SIZE_T_MAX;
 mp_size_t  mulmod_2expm1_threshold	= MP_SIZE_T_MAX;
 mp_size_t  mullow_basecase_threshold    = MP_SIZE_T_MAX;
 mp_size_t  mullow_dc_threshold          = MP_SIZE_T_MAX;
@@ -233,9 +223,6 @@ mp_size_t  rootrem_threshold            = MP_SIZE_T_MAX;
 mp_size_t  divrem_hensel_qr_1_threshold = MP_SIZE_T_MAX;
 mp_size_t  rsh_divrem_hensel_qr_1_threshold = MP_SIZE_T_MAX;
 mp_size_t  divrem_euclid_hensel_threshold = MP_SIZE_T_MAX;
-
-mp_size_t  fft_modf_sqr_threshold = MP_SIZE_T_MAX;
-mp_size_t  fft_modf_mul_threshold = MP_SIZE_T_MAX;
 
 struct param_t {
   const char        *name;
@@ -702,11 +689,8 @@ one (mp_size_t *threshold, gmp_randstate_t rands,struct param_t *param)
    if this step effect remains. */
 
 struct fft_param_t {
-  const char        *table_name;
   const char        *threshold_name;
-  const char        *modf_threshold_name;
   mp_size_t         *p_threshold;
-  mp_size_t         *p_modf_threshold;
   mp_size_t         first_size;
   mp_size_t         max_size;
   speed_function_t  function;
@@ -714,40 +698,20 @@ struct fft_param_t {
   mp_size_t         sqr;
 };
 
-
-/* mpn_mul_fft requires pl a multiple of 2^k limbs, but with
-   N=pl*BIT_PER_MP_LIMB it internally also pads out so N/2^k is a multiple
-   of 2^(k-1) bits. */
-
 mp_size_t
-fft_step_size (int k)
+fft_step_size (int size)
 {
   mp_size_t  step;
-
-  step = MAX ((mp_size_t) 1 << (k-1), BITS_PER_MP_LIMB) / BITS_PER_MP_LIMB;
-  step *= (mp_size_t) 1 << k;
+  
+  step = mpir_fft_adjust_limbs(size + 1) - size;
 
   if (step <= 0)
     {
-      printf ("Can't handle k=%d\n", k);
+      printf ("Can't handle size=%d\n", size);
       abort ();
     }
 
   return step;
-}
-
-mp_size_t
-fft_next_size (mp_size_t pl, int k)
-{
-  mp_size_t  m = fft_step_size (k);
-
-/*    printf ("[k=%d %ld] %ld ->", k, m, pl); */
-
-  if (pl == 0 || (pl & (m-1)) != 0)
-    pl = (pl | (m-1)) + 1;
-
-/*    printf (" %ld\n", pl); */
-  return pl;
 }
 
 void
@@ -756,60 +720,9 @@ fft (struct fft_param_t *p,gmp_randstate_t rands)
   mp_size_t  size;
   int        i, k;
 
-  for (i = 0; i < numberof (mpn_fft_table[p->sqr]); i++)
-    mpn_fft_table[p->sqr][i] = MP_SIZE_T_MAX;
-
   *p->p_threshold = MP_SIZE_T_MAX;
-  *p->p_modf_threshold = MP_SIZE_T_MAX;
-
+  
   option_trace = MAX (option_trace, option_fft_trace);
-
-  printf ("#define %s  {", p->table_name);
-  if (option_trace >= 2)
-    printf ("\n");
-
-  k = FFT_FIRST_K;
-  size = p->first_size;
-  for (;;)
-    {
-      double  tk, tk1;
-
-      size = fft_next_size (size+1, k+1);
-
-      if (size >= p->max_size)
-        break;
-      if (k >= FFT_FIRST_K + numberof (mpn_fft_table[p->sqr]))
-        break;
-
-      /* compare k to k+1 in the middle of the current k+1 step */
-      s.size = size + fft_step_size (k+1) / 2;
-      s.r = k;
-      tk = tuneup_measure (p->function, rands, NULL, &s);
-      if (tk == -1.0)
-        abort ();
-
-      s.r = k+1;
-      tk1 = tuneup_measure (p->function, rands, NULL, &s);
-      if (tk1 == -1.0)
-        abort ();
-
-      if (option_trace >= 2)
-        printf ("at %ld   size=%ld  k=%d  %.9f   k=%d %.9f\n",
-                (long) size, (long) s.size, k, tk, k+1, tk1);
-
-      /* declare the k+1 threshold as soon as it's faster at its midpoint */
-      if (tk1 < tk)
-        {
-          mpn_fft_table[p->sqr][k-FFT_FIRST_K] = s.size;
-          printf (" %ld,", (long) s.size);
-          if (option_trace >= 2) printf ("\n");
-          k++;
-        }
-    }
-
-  mpn_fft_table[p->sqr][k-FFT_FIRST_K] = 0;
-  printf (" 0 }\n");
-
 
   size = p->first_size;
 
@@ -818,61 +731,38 @@ fft (struct fft_param_t *p,gmp_randstate_t rands)
      middle of the FFT step is tested.  */
   for (;;)
     {
-      int     modf = (*p->p_modf_threshold == MP_SIZE_T_MAX);
       double  tk, tm;
 
-      /* k=7 should be the first FFT which can beat toom3 on a full
-         multiply, so jump to that threshold and save some probing after the
-         modf threshold is found.  */
-      if (!modf && size < mpn_fft_table[p->sqr][2])
-        {
-          size = mpn_fft_table[p->sqr][2];
-          if (option_trace >= 2)
-            printf ("jump to size=%ld\n", (long) size);
-        }
-
-      size = fft_next_size (size+1, mpn_fft_best_k (size, p->sqr));
-      k = mpn_fft_best_k (size, p->sqr);
-
+      size = mpir_fft_adjust_limbs (size+1);
+      
       if (size >= p->max_size)
         break;
 
-      s.size = size + fft_step_size (k) / 2;
-      s.r = k;
+      s.size = size + fft_step_size (size) / 2;
+      
       tk = tuneup_measure (p->function, rands, NULL, &s);
       if (tk == -1.0)
         abort ();
 
-      if (!modf)  s.size;
       tm = tuneup_measure (p->mul_function, rands, NULL, &s);
       if (tm == -1.0)
         abort ();
 
       if (option_trace >= 2)
-        printf ("at %ld   size=%ld   k=%d  %.9f   size=%ld %s mul %.9f\n",
+        printf ("at %ld   size=%ld   %.9f   size=%ld %s mul %.9f\n",
                 (long) size,
-                (long) size + fft_step_size (k) / 2, k, tk,
-                (long) s.size, modf ? "modf" : "full", tm);
+                (long) size + fft_step_size (size) / 2, tk,
+                (long) s.size, "full", tm);
 
       if (tk < tm)
         {
-          if (modf)
-            {
-              *p->p_modf_threshold = s.size;
-              print_define (p->modf_threshold_name, *p->p_modf_threshold);
-            }
-          else
-            {
-              *p->p_threshold = s.size;
-              print_define (p->threshold_name,      *p->p_threshold);
-              break;
-            }
+            *p->p_threshold = s.size;
+            print_define (p->threshold_name,      *p->p_threshold);
+            break;
         }
     }
 
 }
-
-
 
 /* Start karatsuba from 4, since the Cray t90 ieee code is much faster at 2,
    giving wrong results.  */
@@ -904,7 +794,7 @@ tune_mul (gmp_randstate_t rands)
   one (&mul_toom8h_threshold, rands, &param);
 
   /* disabled until tuned */
-  MUL_FFT_THRESHOLD = MP_SIZE_T_MAX;
+  MUL_FFT_FULL_THRESHOLD = MP_SIZE_T_MAX;
 }
 
 
@@ -936,7 +826,7 @@ tune_mullow (gmp_randstate_t rands)
   one (&mullow_mul_threshold, rands, &param);
 
   /* disabled until tuned */
-  MUL_FFT_THRESHOLD = MP_SIZE_T_MAX;
+  MUL_FFT_FULL_THRESHOLD = MP_SIZE_T_MAX;
 }
 
 void
@@ -949,7 +839,7 @@ tune_mulmod_2expm1 (gmp_randstate_t rands)
   //param.max_size =  ?? ;
   one (&mulmod_2expm1_threshold, rands, &param);
   /* disabled until tuned */
-  MUL_FFT_THRESHOLD = MP_SIZE_T_MAX;    // ??????????????
+  MUL_FFT_FULL_THRESHOLD = MP_SIZE_T_MAX;    // ??????????????
 }
 
 void
@@ -978,7 +868,7 @@ tune_mulhigh (gmp_randstate_t rands)
   one (&mulhigh_mul_threshold, rands, &param);
 
   /* disabled until tuned */
-  MUL_FFT_THRESHOLD = MP_SIZE_T_MAX;
+  MUL_FFT_FULL_THRESHOLD = MP_SIZE_T_MAX;
 }
 
 void
@@ -1057,7 +947,7 @@ void
 tune_sqr (gmp_randstate_t rands)
 {       
   /* disabled until tuned */
-  SQR_FFT_THRESHOLD = MP_SIZE_T_MAX;
+  SQR_FFT_FULL_THRESHOLD = MP_SIZE_T_MAX;
 
   if (HAVE_NATIVE_mpn_sqr_basecase)
     {
@@ -1900,6 +1790,161 @@ tune_set_str (gmp_randstate_t rands)
   }
 }
 
+void 
+tune_fft(gmp_randstate_t state)
+{
+    mp_bitcnt_t depth, w, depth1, w1;
+    clock_t start, end;
+    double elapsed;
+    double best = 0.0;
+    mp_size_t best_off, off, best_d, best_w;
+
+    if (option_fft_max_size == 0)
+       return;
+
+    printf("/* fft_tuning -- autogenerated by tune-fft */\n\n");
+    printf("#define FFT_TAB \\\n");
+    fflush(stdout);
+
+    printf("   { "); fflush(stdout);
+    for (depth = 6; depth <= 10; depth++)
+    {
+        printf("{ "); fflush(stdout);
+        for (w = 1; w <= 2; w++)
+        {
+            int iters = 100*((mp_size_t) 1 << (3*(10 - depth)/2)), i;
+            
+            mp_size_t n = ((mp_limb_t)1<<depth);
+            mp_bitcnt_t bits1 = (n*w - (depth + 1))/2; 
+            mp_size_t len1 = 2*n;
+            mp_size_t len2 = 2*n;
+
+            mp_bitcnt_t b1 = len1*bits1, b2 = len2*bits1;
+            mp_size_t n1, n2;
+            mp_size_t j;
+            mp_limb_t * i1, *i2, *r1;
+   
+            n1 = (b1 - 1)/GMP_LIMB_BITS + 1;
+            n2 = (b2 - 1)/GMP_LIMB_BITS + 1;
+                    
+            i1 = malloc(2*(n1 + n2)*sizeof(mp_limb_t));
+            i2 = i1 + n1;
+            r1 = i2 + n2;
+   
+            mpn_urandomb(i1, state, b1);
+            mpn_urandomb(i2, state, b2);
+  
+            best_off = -1;
+            
+            for (off = 0; off <= 4; off++)
+            {
+               start = clock();
+               for (i = 0; i < iters; i++)
+                  mpn_mul_trunc_sqrt2(r1, i1, n1, i2, n2, depth - off, w*((mp_size_t)1 << (off*2)));
+               end = clock();
+               
+               elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+               
+               if (elapsed < best || best_off == -1)
+               {
+                  best_off = off;
+                  best = elapsed;
+               }
+            }
+           
+            printf("%ld", best_off); 
+            if (w != 2) printf(",");
+            printf(" "); fflush(stdout);
+
+            free(i1);
+        }
+        printf("}");
+        if (depth != 10) printf(",");
+        printf(" "); fflush(stdout);
+    }
+
+    printf("}\n\n");
+    
+    best_d = 12;
+    best_w = 1;
+    best_off = -1;
+
+    printf("#define MULMOD_TAB \\\n");
+    fflush(stdout);
+    printf("   { "); fflush(stdout);
+    for (depth = 12; best_off != 1 ; depth++)
+    {
+        for (w = 1; w <= 2; w++)
+        {
+            int iters = 100*((mp_size_t) 1 << (3*(18 - depth)/2)), i;
+            mp_size_t n = ((mp_limb_t)1<<depth);
+            mp_bitcnt_t bits = n*w;
+            mp_size_t int_limbs = (bits - 1)/GMP_LIMB_BITS + 1;
+            mp_size_t j;
+            mp_limb_t c, * i1, * i2, * r1, * tt;
+        
+            if (depth <= 21) iters = 32*((mp_size_t) 1 << (21 - depth));
+            else iters = MAX(32/((mp_size_t) 1 << (depth - 21)), 1);
+
+            i1 = malloc(6*(int_limbs+1)*sizeof(mp_limb_t));
+            i2 = i1 + int_limbs + 1;
+            r1 = i2 + int_limbs + 1;
+            tt = r1 + 2*(int_limbs + 1);
+                
+            mpn_urandomb(i1, state, int_limbs*GMP_LIMB_BITS);
+            mpn_urandomb(i2, state, int_limbs*GMP_LIMB_BITS);
+            i1[int_limbs] = 0;
+            i2[int_limbs] = 0;
+
+            depth1 = 1;
+            while ((((mp_limb_t)1)<<depth1) < bits) depth1++;
+            depth1 = depth1/2;
+
+            w1 = bits/(((mp_limb_t)1)<<(2*depth1));
+
+            best_off = -1;
+            
+            for (off = 0; off <= 4; off++)
+            {
+               start = clock();
+               for (i = 0; i < iters; i++)
+                  mpir_fft_mulmod_2expp1(r1, i1, i2, int_limbs, depth1 - off, w1*((mp_size_t)1 << (off*2)));
+               end = clock();
+               
+               elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+               
+               if (best_off == -1 || elapsed < best)
+               {
+                  best_off = off;
+                  best = elapsed;
+               }
+            }
+           
+            start = clock();
+            for (i = 0; i < iters; i++)
+                mpn_mulmod_2expp1_basecase(r1, i1, i2, 0, bits, tt);
+            end = clock();
+               
+            elapsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+            if (elapsed < best)
+            {
+                best_d = depth + (w == 2);
+                best_w = w + 1 - 2*(w == 2);
+            }
+
+            printf("%ld", best_off); 
+            if (w != 2) printf(", "); fflush(stdout);
+
+            free(i1);
+        }
+        printf(", "); fflush(stdout);
+    }
+    printf("1 }\n\n");
+    
+    printf("#define FFT_N_NUM %ld\n\n", 2*(depth - 12) + 1);
+    
+    printf("#define FFT_MULMOD_2EXPP1_CUTOFF %ld\n\n", ((mp_limb_t) 1 << best_d)*best_w/(2*GMP_LIMB_BITS));
+}
 
 void
 tune_fft_mul (gmp_randstate_t rands)
@@ -1909,14 +1954,11 @@ tune_fft_mul (gmp_randstate_t rands)
   if (option_fft_max_size == 0)
     return;
 
-  param.table_name          = "MUL_FFT_TABLE";
   param.threshold_name      = "MUL_FFT_FULL_THRESHOLD";
   param.p_threshold         = &mul_fft_full_threshold;
-  param.modf_threshold_name = "MUL_FFT_MODF_THRESHOLD";
-  param.p_modf_threshold    = &mul_fft_modf_threshold;
   param.first_size          = MUL_TOOM8H_THRESHOLD / 2;
   param.max_size            = option_fft_max_size;
-  param.function            = speed_mpn_mul_fft;
+  param.function            = speed_mpn_mul_fft_main;
   param.mul_function        = speed_mpn_mul_n;
   param.sqr = 0;
   fft (&param,rands);
@@ -1931,14 +1973,11 @@ tune_fft_sqr (gmp_randstate_t rands)
   if (option_fft_max_size == 0)
     return;
 
-  param.table_name          = "SQR_FFT_TABLE";
   param.threshold_name      = "SQR_FFT_FULL_THRESHOLD";
   param.p_threshold         = &sqr_fft_full_threshold;
-  param.modf_threshold_name = "SQR_FFT_MODF_THRESHOLD";
-  param.p_modf_threshold    = &sqr_fft_modf_threshold;
   param.first_size          = SQR_TOOM8_THRESHOLD / 2;
   param.max_size            = option_fft_max_size;
-  param.function            = speed_mpn_mul_fft_sqr;
+  param.function            = speed_mpn_sqr_fft_main;
   param.mul_function        = speed_mpn_sqr;
   param.sqr = 0;
   fft (&param,rands);
@@ -2074,6 +2113,10 @@ all (gmp_randstate_t rands)
   
   /* dc_bdiv_qr_n, dc_bdiv_q */
   tune_dc_bdiv (rands);  
+  printf("\n");
+
+  tune_fft (rands);
+  printf("\n");
 
   time (&end_time);
   printf ("/* Tuneup completed successfully, took %ld seconds */\n",

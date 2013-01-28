@@ -34,12 +34,26 @@ exit /b 1
 
 :make
 
-md mpn mpz mpq mpf printf scanf cxx > nul 2>&1
+md mpn fft mpz mpq mpf printf scanf cxx > nul 2>&1
 
 copy ..\build.vc10\gen_mpir_h.bat .
 copy ..\build.vc10\out_copy_rename.bat .
 copy ..\build.vc10\gen_config_h.bat .
 copy ..\build.vc10\cfg.h .
+
+@echo off
+for /f "usebackq tokens=1*" %%f in (`reg query HKCR\Python.File\shell\open\command`) do (set _my_=%%f %%g)
+goto next%errorlevel%
+
+:next1
+echo Cannot build without Python ...exiting
+exit /b 1
+
+:next0
+set _res_=%_my_:*REG_SZ=%
+set _end_=%_res_:*exe"=%
+call set _python_=%%_res_:%_end_%=%%
+call %_python_% ..\build.vc10\mpir_config.py 1
 
 if %ABI% == 64 (set LOCALABI=x64)
 if %ABI% == 32 (set LOCALABI=win32)
@@ -69,6 +83,13 @@ if errorlevel 1 (
 	set HAVE_STDINT=no
 )
 del comptest.*
+
+if %ABI% == 64 (echo #define HAVE_NATIVE_mpn_addmul_2 1 >> ..\config.h)
+
+:: we delete asm files below for these symbols
+echo #undef HAVE_NATIVE_mpn_mod_1c >> ..\config.h
+echo #undef HAVE_NATIVE_mpn_divrem_1c >> ..\config.h
+echo #define USE_PREINV_DIVREM_1 1 >> ..\config.h
 
 if %ABI% == 64 (set OPT=/D "_WIN64" %FLAGS% %FLAGS1% /c)
 if %ABI% == 32 (set OPT=%FLAGS% %FLAGS1% /c)
@@ -115,6 +136,13 @@ if %HAVE_STDINT% == no (
 )
 cd ..
 
+cd fft
+for %%X in ( ..\..\fft\*.c) do (
+	cl %OPT% -I..\.. %%X
+	if errorlevel 1 goto :err
+)
+cd ..
+
 cd mpf
 for %%X in ( ..\..\mpf\*.c) do (
 	cl %OPT% -I..\.. %%X
@@ -143,7 +171,7 @@ for %%X in ( ..\..\scanf\*.c) do (
 )
 cd ..
 
-for %%X in ( ..\assert.c ..\compat.c ..\errno.c ..\extract-dbl.c ..\invalid.c ..\memory.c ..\mp_bpl.c ..\mp_clz_tab.c ..\mp_dv_tab.c ..\mp_get_fns.c ..\mp_minv_tab.c ..\mp_set_fns.c ..\randbui.c ..\randclr.c ..\randdef.c ..\randiset.c ..\randlc2s.c ..\randlc2x.c ..\randmt.c ..\randmts.c ..\randmui.c ..\rands.c ..\randsd.c ..\randsdui.c ..\tal-reent.c ..\version.c ) do (
+for %%X in ( ..\assert.c ..\errno.c ..\extract-dbl.c ..\invalid.c ..\memory.c ..\mp_bpl.c ..\mp_clz_tab.c ..\mp_dv_tab.c ..\mp_get_fns.c ..\mp_minv_tab.c ..\mp_set_fns.c ..\randbui.c ..\randclr.c ..\randdef.c ..\randiset.c ..\randlc2s.c ..\randlc2x.c ..\randmt.c ..\randmts.c ..\randmui.c ..\rands.c ..\randsd.c ..\randsdui.c ..\tal-reent.c ..\version.c ) do (
 	cl %OPT% -I.. %%X
 	if errorlevel 1 goto :err
 )
@@ -156,13 +184,13 @@ for %%X in ( ..\..\cxx\*.cc) do (
 cd ..
 
 if %LIBTYPE% == dll (
-	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir.%LIBTYPE%
+	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir.%LIBTYPE%
 	if errorlevel 1 goto :err
-	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpirxx.%LIBTYPE%
+	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpirxx.%LIBTYPE%
 	if errorlevel 1 goto :err
 )
 if %LIBTYPE% == lib (
-	lib /nologo scanf\*.obj printf\*.obj mpz\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir.%LIBTYPE%
+	lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir.%LIBTYPE%
 	if errorlevel 1 goto :err
 	lib /nologo cxx/*.obj /out:mpirxx.%LIBTYPE%
 	if errorlevel 1 goto :err
@@ -180,9 +208,9 @@ exit /b 0
 
 md tests
 cd tests
-md mpn mpz mpq mpf rand misc cxx devel > nul 2>&1
+md mpn fft mpz mpq mpf rand misc cxx devel > nul 2>&1
 if %LIBTYPE% == dll (
-	for %%X in ( mpn mpz mpq mpf rand misc cxx devel .) do (
+	for %%X in ( mpn fft mpz mpq mpf rand misc cxx devel .) do (
 		copy ..\mpir.dll %%X
 	)
 	copy ..\mpirxx.dll cxx
@@ -244,6 +272,20 @@ for %%X in ( *.exe) do (
 )
 cd ..
 
+cd fft
+for %%X in ( ..\..\..\tests\fft\t-*.c) do (
+	if not %%X == ..\..\..\tests\fft\t-fat.c (
+		cl %OPT% /I..\..\.. /I..\..\..\tests %%X ..\misc.obj ..\memory.obj ..\trace.obj ..\refmpn.obj %MPIRLIB%
+		if errorlevel 1 goto :err
+	)
+)
+for %%X in ( *.exe) do (
+	echo testing fft_%%X
+	%%X
+	if errorlevel 1 goto :err
+)
+cd ..
+
 cd mpz
 for %%X in ( ..\..\..\tests\mpz\*.c) do (
 	cl %OPT% /I..\..\.. /I..\..\..\tests %%X ..\misc.obj ..\memory.obj ..\trace.obj ..\refmpn.obj ..\refmpz.obj %MPIRLIB%
@@ -294,8 +336,10 @@ cd ..
 
 cd misc
 for %%X in ( ..\..\..\tests\misc\t-*.c) do (
-	cl %OPT% /I..\..\.. /I..\..\..\tests %%X ..\misc.obj ..\memory.obj ..\trace.obj ..\refmpn.obj %MPIRLIB%
-	if errorlevel 1 goto :err
+	if not "%%X" == "..\..\..\tests\misc\t-locale.c" (
+	    cl %OPT% /I..\..\.. /I..\..\..\tests %%X ..\misc.obj ..\memory.obj ..\trace.obj ..\refmpn.obj %MPIRLIB%
+	    if errorlevel 1 goto :err
+	)
 )
 for %%X in ( *.exe) do (
 	echo testing misc_%%X
@@ -337,7 +381,7 @@ exit /b 1
 :clean
 
 del *.obj ..\mpir.h ..\config.h ..\gmp-mparam.h mpir.lib *.idb *.pdb > nul 2>&1
-rmdir /S/Q mpn mpz mpq mpf scanf printf tests cxx tune speed > nul 2>&1
+rmdir /S/Q mpn fft mpz mpq mpf scanf printf tests cxx tune speed > nul 2>&1
 del gen_mpir_h.bat out_copy_rename.bat gen_config_h.bat cfg.h > nul 2>&1
 del getopt.h getrusage.h gettimeofday.h unistd.h win_timing.h > nul 2>&1 
 del config.guess.* config.params.bat mpir.dll mpir.dll.manifest mpir.exp > nul 2>&1
@@ -367,7 +411,7 @@ cl %OPT% /c ..\..\tests\memory.c /I..\..
 cl %OPT% /c ..\..\tests\refmpn.c /I..\..
 cl %OPT% /c ..\..\build.vc10\win_timing.c
 cl %OPT% /c ..\..\build.vc10\getopt.c /I..\..
-for %%X in (        ..\..\tune\common.c        ..\..\tune\mod_1_div.c        ..\..\tune\set_strb.c ..\..\tune\divrem1div.c    ..\..\tune\gcd_bin.c   ..\..\tune\mod_1_inv.c       ..\..\tune\divrem1inv.c    ..\..\tune\gcdextod.c  ..\..\tune\modlinv.c          ..\..\tune\set_strs.c ..\..\tune\divrem2div.c    ..\..\tune\gcdextos.c  ..\..\tune\noop.c             ..\..\tune\divrem2inv.c    ..\..\tune\jacbase1.c  ..\..\tune\powm_mod.c       ..\..\tune\fac_ui_large.c  ..\..\tune\jacbase2.c  ..\..\tune\powm_redc.c    ..\..\tune\fac_ui_small.c  ..\..\tune\jacbase3.c  ..\..\tune\preinv_divrem_1.c  ) do (
+for %%X in (..\..\tune\common.c ..\..\tune\mod_1_div.c ..\..\tune\set_strb.c ..\..\tune\divrem1div.c ..\..\tune\gcd_bin.c ..\..\tune\mod_1_inv.c ..\..\tune\divrem1inv.c ..\..\tune\gcdextod.c ..\..\tune\modlinv.c ..\..\tune\set_strs.c ..\..\tune\divrem2div.c ..\..\tune\gcdextos.c ..\..\tune\noop.c ..\..\tune\divrem2inv.c ..\..\tune\jacbase1.c ..\..\tune\powm_mod.c ..\..\tune\fac_ui_large.c ..\..\tune\jacbase2.c  ..\..\tune\powm_redc.c    ..\..\tune\fac_ui_small.c  ..\..\tune\jacbase3.c ..\..\tune\preinv_divrem_1.c) do (
 	cl -c %OPT% /I..\.. /I..\..\tests /I.. %%X
 )
 cl %OPT% /I..\.. /I.. /I..\..\tests ..\..\tune\speed.c *.obj ..\%MPIRLIB% advapi32.lib psapi.lib
@@ -395,7 +439,7 @@ cl %OPT% /c ..\..\tests\memory.c /I..\..
 cl %OPT% /c ..\..\tests\refmpn.c /I..\..
 cl %OPT% /c ..\..\build.vc10\win_timing.c
 cl %OPT% /c ..\..\build.vc10\getopt.c /I..\..
-for %%X in (  ..\..\tune\set_strp.c      ..\..\tune\common.c        ..\..\tune\mod_1_div.c        ..\..\tune\set_strb.c ..\..\tune\divrem1div.c    ..\..\tune\gcd_bin.c   ..\..\tune\mod_1_inv.c       ..\..\tune\divrem1inv.c    ..\..\tune\gcdextod.c  ..\..\tune\modlinv.c          ..\..\tune\set_strs.c ..\..\tune\divrem2div.c    ..\..\tune\gcdextos.c  ..\..\tune\noop.c             ..\..\tune\divrem2inv.c    ..\..\tune\jacbase1.c  ..\..\tune\powm_mod.c       ..\..\tune\fac_ui_large.c  ..\..\tune\jacbase2.c  ..\..\tune\powm_redc.c    ..\..\tune\fac_ui_small.c  ..\..\tune\jacbase3.c  ..\..\tune\preinv_divrem_1.c  ..\..\build.vc10\tune\*.c) do (
+for %%X in (..\..\tune\set_strp.c ..\..\tune\common.c ..\..\tune\mod_1_div.c ..\..\tune\set_strb.c ..\..\tune\divrem1div.c ..\..\tune\gcd_bin.c ..\..\tune\mod_1_inv.c ..\..\tune\divrem1inv.c ..\..\tune\gcdextod.c ..\..\tune\modlinv.c ..\..\tune\set_strs.c ..\..\tune\divrem2div.c ..\..\tune\gcdextos.c ..\..\tune\noop.c ..\..\tune\divrem2inv.c ..\..\tune\jacbase1.c ..\..\tune\powm_mod.c ..\..\tune\fac_ui_large.c ..\..\tune\jacbase2.c ..\..\tune\powm_redc.c ..\..\tune\fac_ui_small.c ..\..\tune\jacbase3.c ..\..\tune\preinv_divrem_1.c ..\..\build.vc10\tune\*.c) do (
 	cl -c %OPT% /I..\.. /I..\..\tests /I.. %%X
 )
 cl %OPT% /I..\.. /I.. /I..\..\tests ..\..\tune\tuneup.c *.obj ..\%MPIRLIB% advapi32.lib psapi.lib
