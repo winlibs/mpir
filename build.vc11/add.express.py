@@ -54,8 +54,8 @@ def remove_it(fn):
     with open(fn, 'w') as f:
       f.writelines(l)
 
-if not os.getcwd().endswith("build.vc10"):
-  print("This script must be run in the 'build.vc10' directory")
+if not os.getcwd().endswith("build.vc11"):
+  print("This script must be run in the 'build.vc11' directory")
 else:  
   for root, dirs, files in os.walk("./") :
     for file in files :

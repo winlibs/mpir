@@ -1,25 +1,25 @@
 ﻿  dc_divrem_n.c
   divrem_1.c
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\divrem_1.c(123): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\divrem_1.c(123): warning C4146: unary minus operator applied to unsigned type, result still unsigned
   divrem_2.c
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\divrem_2.c(139): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\divrem_2.c(139): warning C4146: unary minus operator applied to unsigned type, result still unsigned
   gcd.c
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcd.c(151): warning C4146: unary minus operator applied to unsigned type, result still unsigned
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcd.c(269): warning C4146: unary minus operator applied to unsigned type, result still unsigned
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcd.c(341): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcd.c(151): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcd.c(269): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcd.c(341): warning C4146: unary minus operator applied to unsigned type, result still unsigned
   gcdext.c
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcdext.c(853): warning C4244: '=' : conversion from 'mp_limb_t' to 'mp_size_t', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcdext.c(918): warning C4244: '=' : conversion from 'mp_limb_t' to 'mp_size_t', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcdext.c(922): warning C4244: '=' : conversion from 'mp_limb_t' to 'mp_size_t', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcdext.c(807): warning C4101: 'u1n' : unreferenced local variable
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\gcdext.c(1110): warning C4101: 't' : unreferenced local variable
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcdext.c(853): warning C4244: '=' : conversion from 'mp_limb_t' to 'mp_size_t', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcdext.c(918): warning C4244: '=' : conversion from 'mp_limb_t' to 'mp_size_t', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcdext.c(922): warning C4244: '=' : conversion from 'mp_limb_t' to 'mp_size_t', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcdext.c(807): warning C4101: 'u1n' : unreferenced local variable
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\gcdext.c(1110): warning C4101: 't' : unreferenced local variable
   get_str.c
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\get_str.c(204): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\get_str.c(252): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\get_str.c(284): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\get_str.c(294): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\get_str.c(392): warning C4244: 'initializing' : conversion from 'const mp_limb_t' to 'int', possible loss of data
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\get_str.c(431): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\get_str.c(204): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\get_str.c(252): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\get_str.c(284): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\get_str.c(294): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\get_str.c(392): warning C4244: 'initializing' : conversion from 'const mp_limb_t' to 'int', possible loss of data
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\get_str.c(431): warning C4244: '=' : conversion from 'mp_limb_t' to 'unsigned char', possible loss of data
   memory.c
   misc.c
 ..\..\tests\misc.c(55): warning C4996: 'setbuf': This function or variable may be unsafe. Consider using setvbuf instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
@@ -33,11 +33,11 @@ c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.
   mod_1.c
   mul.c
   mul_fft.c
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\mul_fft.c(1552): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\mul_fft.c(1668): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\mul_fft.c(2187): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\mul_fft.c(1552): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\mul_fft.c(1668): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\mul_fft.c(2187): warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
   mul_n.c
-c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc10\tune\..\..\mpn\generic\mul_n.c(272): warning C4101: 'c' : unreferenced local variable
+c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\build.vc11\tune\..\..\mpn\generic\mul_n.c(272): warning C4101: 'c' : unreferenced local variable
   mullow_n.c
   refmpn.c
 ..\..\tests\refmpn.c(168): warning C4267: 'function' : conversion from 'size_t' to 'mp_size_t', possible loss of data
@@ -67,4 +67,4 @@ c:\users\brian gladman\desktop\documents\visual studio 2010\projects\mpir\tune\s
           C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(313) : see declaration of 'setbuf'
 ..\..\tune\tuneup.c(1924): warning C4013: 'getopt' undefined; assuming extern returning int
   Generating Code...
-  tune.vcxproj -> C:\Users\Brian Gladman\Desktop\Documents\Visual Studio 2010\Projects\mpir\build.vc10\x64\Release\tune.exe
+  tune.vcxproj -> C:\Users\Brian Gladman\Desktop\Documents\Visual Studio 2010\Projects\mpir\build.vc11\x64\Release\tune.exe

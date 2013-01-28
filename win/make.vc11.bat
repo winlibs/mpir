@@ -184,15 +184,15 @@ for %%X in ( ..\..\cxx\*.cc) do (
 cd ..
 
 if %LIBTYPE% == dll (
-	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir.%LIBTYPE%
+	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir_a.%LIBTYPE%
 	if errorlevel 1 goto :err
-	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpirxx.%LIBTYPE%
+	link /DLL /NODEFAULTLIB:LIBCMT.lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpirxx_a.%LIBTYPE%
 	if errorlevel 1 goto :err
 )
 if %LIBTYPE% == lib (
-	lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir.%LIBTYPE%
+	lib /nologo scanf\*.obj printf\*.obj mpz\*.obj fft\*.obj mpq\*.obj mpf\*.obj mpn\*.obj *.obj /out:mpir_a.%LIBTYPE%
 	if errorlevel 1 goto :err
-	lib /nologo cxx/*.obj /out:mpirxx.%LIBTYPE%
+	lib /nologo cxx/*.obj /out:mpirxx_a.%LIBTYPE%
 	if errorlevel 1 goto :err
 )
 exit /b 0
@@ -211,20 +211,20 @@ cd tests
 md mpn fft mpz mpq mpf rand misc cxx devel > nul 2>&1
 if %LIBTYPE% == dll (
 	for %%X in ( mpn fft mpz mpq mpf rand misc cxx devel .) do (
-		copy ..\mpir.dll %%X
+		copy ..\mpir_a.dll %%X
 	)
-	copy ..\mpirxx.dll cxx
+	copy ..\mpirxx_a.dll cxx
 )
 cd ..
 
 set OPT=%FLAGS% %FLAGS1%
 
-set MPIRLIB=/link ..\..\mpir.lib
-if %LIBTYPE% == lib (set MPIRLIB=..\..\mpir.lib)
-if %LIBTYPE% == lib (set MPIRXXLIB=..\..\mpirxx.lib)
+set MPIRLIB=/link ..\..\mpir_a.lib
+if %LIBTYPE% == lib (set MPIRLIB=..\..\mpir_a.lib)
+if %LIBTYPE% == lib (set MPIRXXLIB=..\..\mpirxx_a.lib)
 
-set MPIRLIB1=/link ..\mpir.lib
-if %LIBTYPE% == lib (set MPIRLIB1=..\mpir.lib)
+set MPIRLIB1=/link ..\mpir_a.lib
+if %LIBTYPE% == lib (set MPIRLIB1=..\mpir_a.lib)
 
 cd tests
 
@@ -380,12 +380,12 @@ exit /b 1
 
 :clean
 
-del *.obj ..\mpir.h ..\config.h ..\gmp-mparam.h mpir.lib *.idb *.pdb > nul 2>&1
+del *.obj ..\mpir_a.h ..\config.h ..\gmp-mparam.h mpir_a.lib *.idb *.pdb > nul 2>&1
 rmdir /S/Q mpn fft mpz mpq mpf scanf printf tests cxx tune speed > nul 2>&1
 del gen_mpir_h.bat out_copy_rename.bat gen_config_h.bat cfg.h > nul 2>&1
 del getopt.h getrusage.h gettimeofday.h unistd.h win_timing.h > nul 2>&1 
-del config.guess.* config.params.bat mpir.dll mpir.dll.manifest mpir.exp > nul 2>&1
-del mpirxx.lib mpirxx.dll mpirxx.exp mpirxx.dll.manifest > nul 2>&1
+del config.guess.* config.params.bat mpir_a.dll mpir_a.dll.manifest mpir_a.exp > nul 2>&1
+del mpirxx_a.lib mpirxx_a.dll mpirxx_a.exp mpirxx_a.dll.manifest > nul 2>&1
 exit /b 0
 
 
@@ -397,7 +397,7 @@ md speed
 
 set OPT=%FLAGS% %FLAGS1%
 set MPIRLIB=
-if %LIBTYPE% == lib (set MPIRLIB=mpir.lib)
+if %LIBTYPE% == lib (set MPIRLIB=mpir_a.lib)
 
 copy ..\build.vc10\unistd.h .
 copy ..\build.vc10\getopt.h .
@@ -427,7 +427,7 @@ md tune
 
 set OPT=%FLAGS% %FLAGS1%
 set MPIRLIB=
-if %LIBTYPE% == lib (set MPIRLIB=mpir.lib)
+if %LIBTYPE% == lib (set MPIRLIB=mpir_a.lib)
 
 copy ..\build.vc10\unistd.h .
 copy ..\build.vc10\getopt.h .

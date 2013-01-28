@@ -55,10 +55,10 @@ Building MPIR
 
 The basic build solution for Visual Studio contains build projects for
 the generic C version of MPIR.  The MPIR build is started by opening the
-Visual Studio C/C++ solution  file 'mpir.sln' in the build.vc10 directory.  
+Visual Studio C/C++ solution  file 'mpir.sln' in the build.vc11 directory.  
 
 It will be assumed here that the MPIR root directory is named 'mpir' so 
-that the build directory is mpir\build.vc10.  The output directories
+that the build directory is mpir\build.vc11.  The output directories
 for builds are:
 
     mpir\lib   for static libraries
@@ -171,7 +171,7 @@ The Tests
 =========
 
 There is a separate solution for the MPIR tests: mpir-tests.sln. In
-Visual Studio 2010 this is in build.vc10 folder.  
+Visual Studio 2010 this is in build.vc11 folder.  
 
 The tests are configured to always test the last version of MPIR that
 has been built. This is automatic but it can be changed by editing 
@@ -185,15 +185,15 @@ mpir-tests' directory.  Its content is typically:
 If this file can be edited to test a different version of MPIR, it
 is also necessary to copy either:
 
-   mpir\build.vc10\mpir-tests\lib-test-config.props
+   mpir\build.vc11\mpir-tests\lib-test-config.props
 
 or:
 
-   mpir\build.vc10\mpir-tests\dll-test-config.props#
+   mpir\build.vc11\mpir-tests\dll-test-config.props#
 
 into:
 
-   mpir\build.vc10\mpir-tests\test-config.props
+   mpir\build.vc11\mpir-tests\test-config.props
 
 depending on whether a static or DLL build of MPIR is to be tested.
 
@@ -210,7 +210,7 @@ Test Automation
 ===============
 
 After they have been built the tests can be run using the Python script 
-run-tests.py in the build.vc10\mpir-tests directory. To see the test 
+run-tests.py in the build.vc11\mpir-tests directory. To see the test 
 output the python script should be run in a command window from within
 these sub-directories:
 
@@ -228,7 +228,7 @@ has been built.  It is possible to test a different library by editing
 'lastbuild.txt' but this will only work if the files in the MPIR output
 directory are correct.  In order to avoid errors, it is advisable before
 testing to do a clean build of the library under test (to do a completely
-clean build, the files in the build.vc10\Win32 and build.vc10\x64 
+clean build, the files in the build.vc11\Win32 and build.vc11\x64 
 directories should be deleted.  
 
 Two Tests Fail
@@ -413,7 +413,7 @@ build.
 
 The gen_config_h batch file takes lists of symbols in the cfg.h files
 in the mpn sub-directories and generates HAVE_NATIVE defines from them. 
-The result is then prepended onto cfg.h in the build.vc10 directory and
+The result is then prepended onto cfg.h in the build.vc11 directory and
 the result is output as config.h into the mpir root directory.
 
 The IDE build
@@ -431,9 +431,9 @@ file postbuild.bat which has the following steps:
    determine the library type (lib or dll), the platform (win32 or 
    x64), the configuration (release or debug) and the filename.
 
-2. The final output directory is then creaated (mpir\build.vc10\lib
-   or mpir\build.vc10\dll) relative to the Visual Stduio solution
-   directory (build.vc10).
+2. The final output directory is then creaated (mpir\build.vc11\lib
+   or mpir\build.vc11\dll) relative to the Visual Stduio solution
+   directory (build.vc11).
    
 3. The file 'output_params.bat' is written describing the MPIR 
    configuration that has been built.  This is used to signal
