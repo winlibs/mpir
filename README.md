@@ -15,10 +15,16 @@ PHP 5.4 and below requires the VC9 build of the MPIR library.<br>
 PHP 5.5 and above requires the VC11 build of the MPIR library.
 
 * cd win/
-* configure
+* 32 bit
+ * configure --cpu=x86
+* 64 bit
+ * configure --cpu=x86_64 
 * building
  * make
-* OR
+ * OR
  * make.vc11
 
+### NOTE
+
+If you plan to run PHP on a specific platform, the MPIR library can use the optimized assembler files. For more information on supported platforms see mpn\README. 
 
