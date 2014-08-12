@@ -47,7 +47,7 @@ goto :lp
 
 :: ARCH is native ABI
 set ARCH=64
-if %PROCESSOR_ARCHITECTURE% == x86 ( set ARCH=32)
+if %CPU% == x86 ( set ARCH=32)
 set VCTARGET=
 if %ARCH% == 64 (
 	if %ABI% == 64 (set VCTARGET=amd64)
