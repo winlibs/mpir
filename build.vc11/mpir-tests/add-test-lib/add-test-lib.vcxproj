@@ -22,23 +22,28 @@
     <ProjectGuid>{A742D3D1-6956-4F85-BFD6-B0E7B477041D}</ProjectGuid>
     <RootNamespace>addtestlib</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -141,14 +146,6 @@
     <ClCompile Include="..\..\..\tests\refmpq.c" />
     <ClCompile Include="..\..\..\tests\refmpz.c" />
     <ClCompile Include="..\..\..\tests\trace.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\lib\x64\release\config.h" />
-    <ClInclude Include="..\..\..\lib\x64\release\gmp-impl.h" />
-    <ClInclude Include="..\..\..\lib\x64\release\gmp-mparam.h" />
-    <ClInclude Include="..\..\..\lib\x64\release\longlong.h" />
-    <ClInclude Include="..\..\..\lib\x64\release\mpir.h" />
-    <ClInclude Include="..\..\getopt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

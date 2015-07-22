@@ -25,9 +25,6 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #include "gmp-impl.h"
 #include "longlong.h"
 
-//#include <stdio.h> 
-//#include <stdlib.h>
-
 /* The DIV_QR_THRESHOLDs should be replaced with DIV_Q_THRESHOLDs */
 
 /* Compute Q = N/D with truncation.
@@ -89,7 +86,7 @@ mpn_tdiv_q (mp_ptr qp,
   mp_ptr new_dp, new_np, tp, rp, scratch;
   mp_limb_t cy, dh, qh;
   mp_size_t new_nn, qn;
-  mp_limb_t dinv;
+  mp_limb_t dinv, d1inv;
   int cnt;
   TMP_DECL;
   TMP_MARK;
@@ -137,14 +134,14 @@ mpn_tdiv_q (mp_ptr qp,
 	  else if (BELOW_THRESHOLD (dn, DC_DIV_Q_THRESHOLD) ||
 		   BELOW_THRESHOLD (new_nn - dn, DC_DIV_Q_THRESHOLD))
 	    {
-          invert_1(dinv, new_dp[dn - 1], new_dp[dn - 2]);
-	      qh = mpn_sb_div_q (qp, new_np, new_nn, new_dp, dn, dinv);
+          mpir_invert_pi2(dinv, d1inv, new_dp[dn - 1], new_dp[dn - 2]);
+	      qh = mpn_sb_div_q (qp, new_np, new_nn, new_dp, dn, dinv, d1inv);
 	    }
 	  else if (BELOW_THRESHOLD (dn, INV_DIV_Q_THRESHOLD) || 
 		   BELOW_THRESHOLD (nn, 2 * INV_DIV_Q_THRESHOLD)) 
 	    {
-          invert_1(dinv, new_dp[dn - 1], new_dp[dn - 2]);
-          qh = mpn_dc_div_q (qp, new_np, new_nn, new_dp, dn, dinv);
+          mpir_invert_pi2(dinv, d1inv, new_dp[dn - 1], new_dp[dn - 2]);
+          qh = mpn_dc_div_q (qp, new_np, new_nn, new_dp, dn, dinv, d1inv);
 	    }
 	  else
 	    {
@@ -167,8 +164,7 @@ mpn_tdiv_q (mp_ptr qp,
 	}
       else  /* divisor is already normalised */
 	{
-	  if (new_np != np)
-	    MPN_COPY (new_np, np, nn);
+	  MPN_COPY (new_np, np, nn);
 
 	  if (dn == 2)
 	    {
@@ -177,14 +173,14 @@ mpn_tdiv_q (mp_ptr qp,
 	  else if (BELOW_THRESHOLD (dn, DC_DIV_Q_THRESHOLD) ||
 		   BELOW_THRESHOLD (nn - dn, DC_DIV_Q_THRESHOLD))
 	    {
-           invert_1(dinv, dh, dp[dn - 2]);
-           qh = mpn_sb_div_q (qp, new_np, nn, dp, dn, dinv);
+           mpir_invert_pi2(dinv, d1inv, dh, dp[dn - 2]);
+           qh = mpn_sb_div_q (qp, new_np, nn, dp, dn, dinv, d1inv);
 	    }
 	  else if (BELOW_THRESHOLD (dn, INV_DIV_Q_THRESHOLD) || 
 		   BELOW_THRESHOLD (nn, 2 * INV_DIV_Q_THRESHOLD))
 	    {
-           invert_1(dinv, dh, dp[dn - 2]);
-           qh = mpn_dc_div_q (qp, new_np, nn, dp, dn, dinv);
+           mpir_invert_pi2(dinv, d1inv, dh, dp[dn - 2]);
+           qh = mpn_dc_div_q (qp, new_np, nn, dp, dn, dinv, d1inv);
 	    }
 	  else
 	    {
@@ -203,12 +199,7 @@ mpn_tdiv_q (mp_ptr qp,
 
       new_np = scratch;
       new_nn = 2 * qn + 1;
-      if (new_np == np)
-	/* We need {np,nn} to remain untouched until the final adjustment, so
-	   we need to allocate separate space for new_np.  */
-	new_np = TMP_ALLOC_LIMBS (new_nn + 1);
-
-
+      
       dh = dp[dn - 1];
       if (LIKELY ((dh & GMP_NUMB_HIGHBIT) == 0))
 	{
@@ -229,13 +220,13 @@ mpn_tdiv_q (mp_ptr qp,
 	    }
 	  else if (BELOW_THRESHOLD (qn - 1, DC_DIVAPPR_Q_THRESHOLD))
 	    {
-          invert_1(dinv, new_dp[qn], new_dp[qn - 1]);
-	      qh = mpn_sb_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv);
+          mpir_invert_pi2(dinv, d1inv, new_dp[qn], new_dp[qn - 1]);
+	      qh = mpn_sb_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv, d1inv);
 	    }
 	  else if (BELOW_THRESHOLD (qn - 1, INV_DIVAPPR_Q_THRESHOLD))
 	    {
-          invert_1(dinv, new_dp[qn], new_dp[qn - 1]);
-	      qh = mpn_dc_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv);
+          mpir_invert_pi2(dinv, d1inv, new_dp[qn], new_dp[qn - 1]);
+	      qh = mpn_dc_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv, d1inv);
 	    }
 	  else
 	    {
@@ -268,25 +259,25 @@ mpn_tdiv_q (mp_ptr qp,
 	    }
 	  else if (BELOW_THRESHOLD (qn - 1, DC_DIVAPPR_Q_THRESHOLD))
 	    {
-          invert_1(dinv, dh, new_dp[qn - 1]);
-          qh = mpn_sb_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv);
+          mpir_invert_pi2(dinv, d1inv, dh, new_dp[qn - 1]);
+          qh = mpn_sb_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv, d1inv);
 	    }
 	  else if (BELOW_THRESHOLD (qn - 1, INV_DIVAPPR_Q_THRESHOLD))
 	    {
-          invert_1(dinv, dh, new_dp[qn - 1]);
-          qh = mpn_dc_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv);
+          mpir_invert_pi2(dinv, d1inv, dh, new_dp[qn - 1]);
+          qh = mpn_dc_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, dinv, d1inv);
 	    }
 	  else
 	    {
           mp_ptr inv = TMP_ALLOC_LIMBS(qn + 1);
-	   mpn_invert(inv, new_dp, qn + 1);
+	       mpn_invert(inv, new_dp, qn + 1);
           qh = mpn_inv_divappr_q (tp, new_np, new_nn, new_dp, qn + 1, inv);
 	    }
 	  tp[qn] = qh;
 	}
 
       MPN_COPY (qp, tp + 1, qn);
-      if (tp[0] <= 4)
+      if (UNLIKELY(tp[0] <= 4))
         {
 	  mp_size_t rn;
 

@@ -9,7 +9,7 @@
    GUARANTEED THAT THEY WILL CHANGE OR DISAPPEAR IN A FUTURE GMP RELEASE.
 
 Copyright 2006, 2007, 2009 Free Software Foundation, Inc.
-Copyright 2010, William Hart (modofied for MPIR)
+Copyright 2010, William Hart (modified for MPIR)
 
 This file is part of the GNU MP Library.
 
@@ -111,8 +111,6 @@ mpn_divexact (mp_ptr qp,
     {
        n2p = TMP_ALLOC_LIMBS(nn);
        MPN_COPY(n2p, np, nn);
-    
-       dp;
     } else
     { 
        count_leading_zeros (shift, dp[dn - 1]);
@@ -137,7 +135,7 @@ mpn_divexact (mp_ptr qp,
     if ((qp[0] & 1) + q_even != 1) /* quotient is out by 1 */
        mpn_sub_1(qp, qp, qn + 1, 1);
    } else
-     qp[0] = 1; // as dp is normalised, exact division means qp = 1
+     qp[0] = 1; /* as dp is normalised, exact division means qp = 1 */
   }
 
   TMP_FREE;

@@ -41,10 +41,10 @@ define(POWERPC64_PATTERN,
 [[powerpc64-*-* | powerpc64le-*-* | powerpc620-*-* | powerpc630-*-* | powerpc970-*-* | power[3-9]-*-*]])
 
 define(X86_PATTERN,
-[[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | athlon-*-* | viac3*-*-*]])
+[[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | prescott-*-* | core-*-* | athlon-*-* | viac3*-*-*]])
 
 define(X86_64_PATTERN,
-[[x86_64-*-* | netburst-*-* | netburstlahf-*-* | k8-*-* | k10-*-* | k102-*-* | k103-*-* | core2-*-* | penryn-*-* | nehalem-*-* | westmere-*-* | sandybridge-*-* | atom-*-* | nano-*-* | bobcat-*-* | bulldozer-*-*]])
+[[x86_64-*-* | netburst-*-* | netburstlahf-*-* | k8-*-* | k10-*-* | k102-*-* | k103-*-* | core2-*-* | penryn-*-* | nehalem-*-* | westmere-*-* | sandybridge-*-* | atom-*-* | nano-*-* | bobcat-*-* | bulldozer-*-* | piledriver-*-* | ivybridge-*-* | haswell-*-*]])
 
 dnl  GMP_FAT_SUFFIX(DSTVAR, DIRECTORY)
 dnl  ---------------------------------
@@ -480,9 +480,9 @@ gmp_prog_cc_works=yes
 # first see a simple "main()" works, then go on to other checks
 GMP_PROG_CC_WORKS_PART([$1], [])
 
-GMP_PROG_CC_WORKS_PART_MAIN([$1], [gcc-4.3.2 on 64bit is bad , try -O1 or -fno-strict-aliasing for the flags],
-[/* The following aborts with gcc-4.3.2 on a 64bit system which is an unusable compiler */
-#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
+GMP_PROG_CC_WORKS_PART_MAIN([$1], [gcc-4.3.2 on 64-bit is bad , try -O1 or -fno-strict-aliasing for the flags],
+[/* The following aborts with gcc-4.3.2 on a 64-bit system which is an unusable compiler */
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !defined(__clang__)
 int __attribute__((noinline))
 foo(int i)
 {
@@ -519,31 +519,45 @@ int n;
 int cmov () { return (n >= 0 ? n : 0); }
 ])
 
-GMP_PROG_CC_WORKS_PART([$1], [double -> ulong conversion],
+GMP_PROG_CC_WORKS_PART_MAIN([$1], [double -> ulong conversion],
 [/* The following provokes a linker invocation problem with gcc 3.0.3
    on AIX 4.3 under "-maix64 -mpowerpc64 -mcpu=630".  The -mcpu=630
    option causes gcc to incorrectly select the 32-bit libgcc.a, not
    the 64-bit one, and consequently it misses out on the __fixunsdfdi
-   helper (double -> uint64 conversion).  */
-double d;
-unsigned long gcc303 () { return (unsigned long) d; }
+   helper (double -> uint64 conversion).
+   This also provokers errors on x86 when AVX instructions are
+   generated but not understood by the assembler or processor.*/
+volatile double d;
+volatile unsigned long u;
+int main() { d = 0.1; u = (unsigned long)d; return (int)u; }
 ])
 
-GMP_PROG_CC_WORKS_PART([$1], [double negation],
+GMP_PROG_CC_WORKS_PART_MAIN([$1], [double negation],
 [/* The following provokes an error from hppa gcc 2.95 under -mpa-risc-2-0 if
    the assembler doesn't know hppa 2.0 instructions.  fneg is a 2.0
    instruction, and a negation like this comes out using it.  */
-double fneg_data;
-unsigned long fneg () { return -fneg_data; }
+volatile double d;
+volatile double d2;
+int main() { d = -0.1; d2 = -d; return (int)d2; }
 ])
 
-GMP_PROG_CC_WORKS_PART([$1], [double -> float conversion],
+GMP_PROG_CC_WORKS_PART_MAIN([$1], [double -> float conversion],
 [/* The following makes gcc 3.3 -march=pentium4 generate an SSE2 xmm insn
    (cvtsd2ss) which will provoke an error if the assembler doesn't recognise
    those instructions.  Not sure how much of the gmp code will come out
    wanting sse2, but it's easiest to reject an option we know is bad.  */
-double ftod_data;
-float ftod () { return (float) ftod_data; }
+volatile double d;
+volatile float f;
+int main() { d = 0.1; f = (float)d; return (int)f; }
+])
+
+GMP_PROG_CC_WORKS_PART_MAIN([$1], [unsigned long/double division],
+[/* The following generates a vmovd instruction on Sandy Bridge.
+   Check that the assembler knows this instruction. */
+volatile unsigned long a;
+volatile double b;
+int main()
+{ a = 1; b = 3; return (int)(a/b); }
 ])
 
 # __builtin_alloca is not available everywhere, check it exists before
@@ -566,10 +580,13 @@ int foo ()
 GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 1],
 [/* The following provokes a segfault in the compiler on powerpc-apple-darwin.
    Extracted from tests/mpn/t-iord_u.c.  Causes Apple's gcc 3.3 build 1640 and
-   1666 to segfault with e.g., -O2 -mpowerpc64.  */
+   1666 to segfault with, e.g., -O2 -mpowerpc64.  */
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 typedef unsigned long long t1;typedef t1*t2;
+#if defined(__GNUC_STDC_INLINE__)  /* e.g. GCC 5.x defaults to this, not __GNUC_GNU_INLINE__ */
+extern
+#endif
 __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
 {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
 f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;

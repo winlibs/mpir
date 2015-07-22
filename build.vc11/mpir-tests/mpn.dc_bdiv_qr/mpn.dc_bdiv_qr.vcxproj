@@ -22,23 +22,28 @@
     <ProjectGuid>{EA93C742-193A-470A-ACA0-3C0ADC7C8510}</ProjectGuid>
     <RootNamespace>mpn.dc_bdiv_qr</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and $(VisualStudioVersion) == ''">$(VCTargetsPath11)</VCTargetsPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -73,7 +78,6 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <CompileAs>Default</CompileAs>
-      <AdditionalIncludeDirectories>$(MPDIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(TestDir)$(OutDir)$(ProjectName).exe</OutputFile>
@@ -97,7 +101,6 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <CompileAs>Default</CompileAs>
-      <AdditionalIncludeDirectories>$(MPDIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(TestDir)$(OutDir)$(ProjectName).exe</OutputFile>
@@ -118,7 +121,6 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <CompileAs>Default</CompileAs>
-      <AdditionalIncludeDirectories>$(MPDIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <OutputFile>$(TestDir)$(OutDir)$(ProjectName).exe</OutputFile>

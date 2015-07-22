@@ -1,12 +1,13 @@
 /* Speed measuring program.
 
-Copyright 1999, 2000, 2001, 2002, 2003, 2005, 2006 Free Software Foundation, Inc.
+Copyright 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2008, 2009, 2010,
+2011, 2012 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or (at your
+the Free Software Foundation; either version 3 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -15,9 +16,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
-the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-MA 02110-1301, USA. */
+along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  
+
+*/
 
 /* Usage message is in the code below, run with no arguments to print it.
    See README for interesting applications.
@@ -240,6 +241,9 @@ const struct routine_t {
 
   { "mpn_inv_divappr_q",  speed_mpn_inv_divappr_q, },
   { "mpn_inv_div_qr",  speed_mpn_inv_div_qr,  },
+  { "mpn_tdiv_q",  speed_mpn_tdiv_q,  FLAG_R_OPTIONAL},
+  { "mpn_sb_divappr_q",  speed_mpn_sb_divappr_q},
+  { "mpn_sb_div_qr",  speed_mpn_sb_div_qr},
   { "mpn_dc_divappr_q",  speed_mpn_dc_divappr_q,  },
   { "mpn_dc_div_qr_n",  speed_mpn_dc_div_qr_n,  },
    
@@ -295,20 +299,32 @@ const struct routine_t {
   { "mpn_popcount",      speed_mpn_popcount         },
   { "mpn_hamdist",       speed_mpn_hamdist          },
 
-  { "mpn_gcd_1",         speed_mpn_gcd_1,  FLAG_R_OPTIONAL },
-  { "mpn_gcd_1N",        speed_mpn_gcd_1N, FLAG_R_OPTIONAL },
+  { "mpn_matrix22_mul",  speed_mpn_matrix22_mul     },
+
   { "mpn_hgcd",          speed_mpn_hgcd             },
+  { "mpn_hgcd_lehmer",   speed_mpn_hgcd_lehmer      },
+  { "mpn_hgcd_appr",     speed_mpn_hgcd_appr        },
+  { "mpn_hgcd_appr_lehmer", speed_mpn_hgcd_appr_lehmer },
+
+  { "mpn_hgcd_reduce",   speed_mpn_hgcd_reduce      },
+  { "mpn_hgcd_reduce_1", speed_mpn_hgcd_reduce_1    },
+  { "mpn_hgcd_reduce_2", speed_mpn_hgcd_reduce_2    },
+
+  { "mpn_gcd_1",         speed_mpn_gcd_1,  FLAG_R_OPTIONAL },
   { "mpn_gcd",           speed_mpn_gcd                    },
 
   { "mpn_gcdext",            speed_mpn_gcdext            },
-#if 0
-  { "mpn_gcdext_lehmer",     speed_mpn_gcdext_lehmer     },
-#endif
+  { "mpn_gcdext_single",     speed_mpn_gcdext_single     },
+  { "mpn_gcdext_double",     speed_mpn_gcdext_double     },
+  { "mpn_gcdext_one_single", speed_mpn_gcdext_one_single },
+  { "mpn_gcdext_one_double", speed_mpn_gcdext_one_double },
+
   { "mpz_jacobi",        speed_mpz_jacobi           },
   { "mpn_jacobi_base",   speed_mpn_jacobi_base      },
   { "mpn_jacobi_base_1", speed_mpn_jacobi_base_1    },
   { "mpn_jacobi_base_2", speed_mpn_jacobi_base_2    },
   { "mpn_jacobi_base_3", speed_mpn_jacobi_base_3    },
+  { "mpn_jacobi_base_4", speed_mpn_jacobi_base_4    },
 
   { "mpn_mul_basecase",  speed_mpn_mul_basecase, FLAG_R_OPTIONAL },
   { "mpn_sqr_basecase",  speed_mpn_sqr_basecase     },
@@ -1116,6 +1132,14 @@ check_align_option (const char *name, mp_size_t align)
     }
 }
 
+#ifdef _WIN64
+#  define s2_format "%lld-%lld"
+#  define s3_format "%lld(%lld)%lld"
+#else
+#  define s2_format "%ld-%ld"
+#  define s3_format "%ld(%ld)%ld"
+#endif
+
 int
 main (int argc, char *argv[])
 {
@@ -1227,13 +1251,13 @@ main (int argc, char *argv[])
                   size_allocnum += 10;
                 }
               size_array[size_num].inc = 0;
-              if (sscanf (s, "%ld(%ld)%ld",
+              if (sscanf (s, s3_format,
                           &size_array[size_num].start,
                           &size_array[size_num].inc,
                           &size_array[size_num].end) != 3)
                 {
 
-                  if (sscanf (s, "%ld-%ld",
+                  if (sscanf (s, s2_format,
                               &size_array[size_num].start,
                               &size_array[size_num].end) != 2)
                     {

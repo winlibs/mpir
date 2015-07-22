@@ -44,7 +44,7 @@ check_sb_div_q (void)
    mp_limb_t rp[2*MAX_LIMBS+1];
    mp_limb_t dp[MAX_LIMBS];
    mp_limb_t qp[2*MAX_LIMBS];
-   mp_limb_t dip, cy;
+   mp_limb_t dip, d1ip, cy;
 
    mp_size_t nn, rn, dn, qn;
 
@@ -64,11 +64,11 @@ check_sb_div_q (void)
 
       MPN_COPY(np2, np, nn);
       
-      invert_1(dip, dp[dn - 1], dp[dn - 2]);
+      mpir_invert_pi2(dip, d1ip, dp[dn - 1], dp[dn - 2]);
       
       qn = nn - dn + 1;
          
-      qp[qn - 1] = mpn_sb_div_q(qp, np, nn, dp, dn, dip);
+      qp[qn - 1] = mpn_sb_div_q(qp, np, nn, dp, dn, dip, d1ip);
 
       MPN_NORMALIZE(qp, qn);
 
@@ -105,7 +105,7 @@ check_sb_div_q (void)
       if (s >= 0)
       {
          printf ("failed:\n");
-         printf ("nn = %lu, dn = %lu, qn = %lu, rn = %lu\n\n", nn, dn, qn, rn);
+         printf ("nn = %zd, dn = %zd, qn = %zd, rn = %zd\n\n", nn, dn, qn, rn);
          gmp_printf (" np: %Nx\n\n", np2, nn);
          gmp_printf (" dp: %Nx\n\n", dp, dn);
          gmp_printf (" qp: %Nx\n\n", qp, qn);

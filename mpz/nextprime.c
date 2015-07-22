@@ -24,13 +24,29 @@ Boston, MA 02110-1301, USA.
 #include "gmp-impl.h"
 
 
-// This function is Obsolete  17/8/2009
-void	mpz_nextprime(mpz_ptr x, mpz_srcptr y)
+/* This function is Obsolete  17/8/2009 */
+
+/* 
+   But people use it anyway! 
+   
+   FIXME: This function should prove the primality of x using 
+   ECPP or APR-CL.
+*/
+void mpz_nextprime(mpz_ptr x, mpz_srcptr y)
 {
   gmp_randstate_t rnd;
   
-  gmp_randinit_default (rnd);
-  mpz_next_likely_prime(x,y, rnd);
-  gmp_randclear (rnd);
+  gmp_randinit_default(rnd);
+  mpz_next_prime_candidate(x, y, rnd);
+  
+  if (mpz_cmp_ui(x, 1000000L) >= 0) /* nextprime_candidate sieves primes up to 1000 */
+  {
+     while (!mpz_miller_rabin (x, 23, rnd)) /* we've done 2 rounds already, do another 23 */
+     {
+        mpz_add_ui(x, x, 2);
+        mpz_next_prime_candidate(x, x, rnd);
+     }
+  }
 
-return;}
+  gmp_randclear(rnd);
+}

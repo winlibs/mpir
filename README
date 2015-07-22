@@ -6,7 +6,7 @@ This file is part of the MPIR Library.
 
 The MPIR Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or (at your
+the Free Software Foundation; either version 3 of the License, or (at your
 option) any later version.
 
 The MPIR Library is distributed in the hope that it will be useful, but
@@ -26,6 +26,7 @@ the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 
 			THE MPIR LIBRARY
 
+MPIR is a fork of the GNU Multi Precision library (GMP -- see http://gmplib.org)
 
 MPIR is a library for arbitrary precision arithmetic, operating on signed
 integers, rational numbers, and floating point numbers.  It has a rich set of
@@ -37,7 +38,7 @@ type, by using fast algorithms, with carefully optimized assembly code for the
 most common inner loops for lots of CPUs, and by a general emphasis on speed
 (instead of simplicity or elegance).
 
-MPIR is believed to be faster than any other similar library.  Its advantage
+GMP/MPIR is believed to be faster than any other similar library.  Its advantage
 increases with operand sizes for certain operations, since MPIR in many
 cases has asymptotically faster algorithms.
 
@@ -49,7 +50,7 @@ the latter).
 
 			OVERVIEW OF MPIR
 
-There are five classes of functions in MPIR.
+There are four classes of functions in MPIR.
 
  1. Signed integer arithmetic functions (mpz).  These functions are intended
     to be easy to use, with their regular interface.  The associated type is
@@ -76,7 +77,7 @@ There are five classes of functions in MPIR.
     low-level functions.
 
 For more information on how to use MPIR, please refer to the documentation.
-It is composed from the file gmp.texi, and can be displayed on the screen or
+It is composed from the file mpir.texi, and can be displayed on the screen or
 printed.  How to do that, as well how to build the library, is described in
 the INSTALL file in this directory.
 

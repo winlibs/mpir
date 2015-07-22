@@ -9,8 +9,6 @@
 
 Copyright 2006, 2007, 2009, 2010 Free Software Foundation, Inc.
 
-Copyright 2010 William Hart (minor modifications)
-
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
@@ -32,7 +30,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 
 mp_limb_t
 mpn_dc_div_q (mp_ptr qp, mp_ptr np, mp_size_t nn,
-		 mp_srcptr dp, mp_size_t dn, mp_limb_t dinv)
+		 mp_srcptr dp, mp_size_t dn, mp_limb_t dinv, mp_limb_t d1inv)
 {
   mp_ptr tp, wp;
   mp_limb_t qh;
@@ -52,7 +50,7 @@ mpn_dc_div_q (mp_ptr qp, mp_ptr np, mp_size_t nn,
   qn = nn - dn;
   wp = TMP_ALLOC_LIMBS (qn + 1);
 
-  qh = mpn_dc_divappr_q (wp, tp, nn + 1, dp, dn, dinv);
+  qh = mpn_dc_divappr_q (wp, tp, nn + 1, dp, dn, dinv, d1inv);
 
   if (wp[0] == 0)
     {

@@ -3,6 +3,8 @@
 Copyright 1991, 1992, 1993, 1994, 1996, 1997, 1999, 2000, 2001, 2002, 2003,
 2004, 2005 Free Software Foundation, Inc.
 
+Copyright 2013 William Hart
+
 This file is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation; either version 2.1 of the License, or (at your
@@ -18,7 +20,7 @@ along with this file; see the file COPYING.LIB.  If not, write to
 the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA. */
 
-#if defined (__GNUC__) || defined(INTEL_COMPILER)
+#if defined (__GNUC__) || defined(__INTEL_COMPILER)
 
 #define add_ssaaaa(sh, sl, ah, al, bh, bl) \
   __asm__ ("addl %5,%k1\n\tadcl %3,%k0"					\
@@ -30,6 +32,18 @@ MA 02110-1301, USA. */
 	   : "=r" (sh), "=&r" (sl)					\
 	   : "0" ((USItype)(ah)), "g" ((USItype)(bh)),			\
 	     "1" ((USItype)(al)), "g" ((USItype)(bl)))
+#define add_333(sh, sm, sl, ah, am, al, bh, bm, bl)  \
+  __asm__ ("addl %8,%q2\n\tadcl %6,%q1\n\tadcl %4,%q0"     \
+       : "=r" (sh), "=r" (sm), "=&r" (sl)                  \
+       : "0"  ((USItype)(ah)), "rme" ((USItype)(bh)),  \
+         "1"  ((USItype)(am)), "rme" ((USItype)(bm)),  \
+         "2"  ((USItype)(al)), "rme" ((USItype)(bl)))  
+#define sub_333(sh, sm, sl, ah, am, al, bh, bm, bl)  \
+  __asm__ ("subl %8,%q2\n\tsbbl %6,%q1\n\tsbbl %4,%q0"     \
+       : "=r" (sh), "=r" (sm), "=&r" (sl)                  \
+       : "0"  ((USItype)(ah)), "rme" ((USItype)(bh)),  \
+         "1"  ((USItype)(am)), "rme" ((USItype)(bm)),  \
+         "2"  ((USItype)(al)), "rme" ((USItype)(bl)))  
 #define umul_ppmm(w1, w0, u, v) \
   __asm__ ("mull %3"							\
 	   : "=a" (w0), "=d" (w1)					\
