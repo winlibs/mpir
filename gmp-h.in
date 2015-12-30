@@ -1220,6 +1220,7 @@ __GMP_DECLSPEC void mpz_urandomm __GMP_PROTO ((mpz_ptr, gmp_randstate_t, mpz_src
 #define mpz_eor __gmpz_xor
 __GMP_DECLSPEC void mpz_xor __GMP_PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr));
 
+#define MPZ_ROINIT_N(xp, xs) {{0, (xs),(xp) }}
 
 /****** Integer (i.e. Z) routines for intmaax_t/uintmax_t types ******/
 
@@ -1276,6 +1277,9 @@ __GMP_DECLSPEC int _mpq_cmp_si __GMP_PROTO ((mpq_srcptr, mpir_si, mpir_ui)) __GM
 
 #define _mpq_cmp_ui __gmpq_cmp_ui
 __GMP_DECLSPEC int _mpq_cmp_ui __GMP_PROTO ((mpq_srcptr, mpir_ui, mpir_ui)) __GMP_ATTRIBUTE_PURE;
+
+#define mpq_cmp_z __gmpq_cmp_z
+__GMP_DECLSPEC int mpq_cmp_z (mpq_srcptr, mpz_srcptr) __GMP_ATTRIBUTE_PURE;
 
 #define mpq_div __gmpq_div
 __GMP_DECLSPEC void mpq_div __GMP_PROTO ((mpq_ptr, mpq_srcptr, mpq_srcptr));
@@ -1646,7 +1650,7 @@ __GMP_DECLSPEC void mpn_invert __GMP_PROTO ((mp_ptr xp, mp_srcptr ap, mp_size_t 
 
 #define mpn_sb_divappr_q __MPN(sb_divappr_q)
 __GMP_DECLSPEC mp_limb_t mpn_sb_divappr_q __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn,
-		  mp_srcptr dp, mp_size_t dn, mp_limb_t dip, mp_limb_t d1ip)); 
+		  mp_srcptr dp, mp_size_t dn, mp_limb_t dip)); 
 
 #define mpn_dc_bdiv_q_n __MPN(dc_bdiv_q_n)
 __GMP_DECLSPEC void mpn_dc_bdiv_q_n __GMP_PROTO ((mp_ptr qp, mp_ptr wp, mp_ptr np, mp_srcptr dp, mp_size_t n,
@@ -1658,11 +1662,11 @@ __GMP_DECLSPEC mp_limb_t mpn_inv_divappr_q_n __GMP_PROTO ((mp_ptr qp, mp_ptr np,
 
 #define mpn_dc_divappr_q __MPN(dc_divappr_q)
 __GMP_DECLSPEC mp_limb_t mpn_dc_divappr_q __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, 
-                 mp_size_t n, mp_limb_t dinv, mp_limb_t d1inv));
+                 mp_size_t n, mp_limb_t dinv));
 
 #define mpn_dc_div_q __MPN(dc_div_q)
 __GMP_DECLSPEC mp_limb_t mpn_dc_div_q __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn,
-         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv, mp_limb_t d1inv));
+         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv));
 
 #define mpn_inv_divappr_q __MPN(inv_divappr_q)
 __GMP_DECLSPEC mp_limb_t mpn_inv_divappr_q __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn, mp_srcptr dp, mp_size_t n,
@@ -1682,15 +1686,15 @@ __GMP_DECLSPEC mp_limb_t mpn_inv_div_qr_n __GMP_PROTO ((mp_ptr qp, mp_ptr np,
 
 #define mpn_dc_div_qr __MPN(dc_div_qr)
 __GMP_DECLSPEC mp_limb_t mpn_dc_div_qr __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn,
-         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv, mp_limb_t d1inv));
+         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv));
 
 #define mpn_dc_div_qr_n __MPN(dc_div_qr_n)
 __GMP_DECLSPEC mp_limb_t mpn_dc_div_qr_n __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_srcptr dp, mp_size_t n,
-         mp_limb_t dinv, mp_limb_t d1inv, mp_ptr tp));
+         mp_limb_t dinv, mp_ptr tp));
 
 #define mpn_sb_div_q __MPN(sb_div_q)
 __GMP_DECLSPEC mp_limb_t mpn_sb_div_q __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn,
-         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv, mp_limb_t d1inv));
+         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv));
 
 #define mpn_sb_bdiv_q __MPN(sb_bdiv_q)
 __GMP_DECLSPEC void mpn_sb_bdiv_q __GMP_PROTO ((mp_ptr qp, mp_ptr wp, mp_ptr np, mp_size_t nn,
@@ -1710,7 +1714,7 @@ __GMP_DECLSPEC mp_limb_t mpn_dc_bdiv_qr_n __GMP_PROTO ((mp_ptr qp, mp_ptr np,
 
 #define mpn_sb_div_qr __MPN(sb_div_qr)
 __GMP_DECLSPEC mp_limb_t mpn_sb_div_qr __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn,
-         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv, mp_limb_t d1inv));
+         mp_srcptr dp, mp_size_t dn, mp_limb_t dinv));
 
 #define mpn_sb_bdiv_qr __MPN(sb_bdiv_qr)
 __GMP_DECLSPEC mp_limb_t mpn_sb_bdiv_qr __GMP_PROTO ((mp_ptr qp, mp_ptr np, mp_size_t nn,
@@ -2475,9 +2479,9 @@ enum
 
 #define __MPIR_VERSION 2
 #define __MPIR_VERSION_MINOR 7 
-#define __MPIR_VERSION_PATCHLEVEL 0
+#define __MPIR_VERSION_PATCHLEVEL 2 
 #if defined( _MSC_VER )
-#define _MSC_MPIR_VERSION "2.7.0"
+#define _MSC_MPIR_VERSION "2.7.2"
 #endif
 #define __MPIR_RELEASE (__MPIR_VERSION * 10000 + __MPIR_VERSION_MINOR * 100 + __MPIR_VERSION_PATCHLEVEL)
 
