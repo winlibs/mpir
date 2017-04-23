@@ -915,7 +915,7 @@ __GMP_DECLSPEC void mpz_gcdext __GMP_PROTO ((mpz_ptr, mpz_ptr, mpz_ptr, mpz_srcp
 __GMP_DECLSPEC double mpz_get_d __GMP_PROTO ((mpz_srcptr)) __GMP_ATTRIBUTE_PURE;
 
 #define mpz_get_d_2exp __gmpz_get_d_2exp
-__GMP_DECLSPEC double mpz_get_d_2exp __GMP_PROTO ((mpir_si *, mpz_srcptr));
+__GMP_DECLSPEC double mpz_get_d_2exp __GMP_PROTO ((signed long *, mpz_srcptr));
 
 #define mpz_get_si __gmpz_get_si
 __GMP_DECLSPEC /* signed */ mpir_si mpz_get_si __GMP_PROTO ((mpz_srcptr)) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
@@ -1220,6 +1220,21 @@ __GMP_DECLSPEC void mpz_urandomm __GMP_PROTO ((mpz_ptr, gmp_randstate_t, mpz_src
 #define mpz_eor __gmpz_xor
 __GMP_DECLSPEC void mpz_xor __GMP_PROTO ((mpz_ptr, mpz_srcptr, mpz_srcptr));
 
+#define mpz_limbs_read __gmpz_limbs_read
+__GMP_DECLSPEC mp_srcptr mpz_limbs_read (mpz_srcptr);
+
+#define mpz_limbs_write __gmpz_limbs_write
+__GMP_DECLSPEC mp_ptr mpz_limbs_write (mpz_ptr, mp_size_t);
+
+#define mpz_limbs_modify __gmpz_limbs_modify
+__GMP_DECLSPEC mp_ptr mpz_limbs_modify (mpz_ptr, mp_size_t);
+
+#define mpz_limbs_finish __gmpz_limbs_finish
+__GMP_DECLSPEC void mpz_limbs_finish (mpz_ptr, mp_size_t);
+
+#define mpz_roinit_n __gmpz_roinit_n
+__GMP_DECLSPEC mpz_srcptr mpz_roinit_n (mpz_ptr, mp_srcptr, mp_size_t);
+
 #define MPZ_ROINIT_N(xp, xs) {{0, (xs),(xp) }}
 
 /****** Integer (i.e. Z) routines for intmaax_t/uintmax_t types ******/
@@ -1443,7 +1458,7 @@ __GMP_DECLSPEC void mpf_floor __GMP_PROTO ((mpf_ptr, mpf_srcptr));
 __GMP_DECLSPEC double mpf_get_d __GMP_PROTO ((mpf_srcptr)) __GMP_ATTRIBUTE_PURE;
 
 #define mpf_get_d_2exp __gmpf_get_d_2exp
-__GMP_DECLSPEC double mpf_get_d_2exp __GMP_PROTO ((mpir_si *, mpf_srcptr));
+__GMP_DECLSPEC double mpf_get_d_2exp __GMP_PROTO ((signed long *, mpf_srcptr));
 
 #define mpf_get_default_prec __gmpf_get_default_prec
 __GMP_DECLSPEC mp_bitcnt_t mpf_get_default_prec __GMP_PROTO ((void)) __GMP_NOTHROW __GMP_ATTRIBUTE_PURE;
@@ -1627,6 +1642,7 @@ __GMP_DECLSPEC void mpn_redc_1 __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_size_
 
 #define mpn_redc_2 __MPN(redc_2)
 __GMP_DECLSPEC void mpn_redc_2 __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr));
+
 #define mpn_redc_n __MPN(redc_n)
 __GMP_DECLSPEC void mpn_redc_n __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_size_t, mp_srcptr));
 
@@ -1815,6 +1831,9 @@ __GMP_DECLSPEC mp_bitcnt_t mpn_scan1 __GMP_PROTO ((mp_srcptr, mp_bitcnt_t)) __GM
 #define mpn_set_str __MPN(set_str)
 __GMP_DECLSPEC mp_size_t mpn_set_str __GMP_PROTO ((mp_ptr, __gmp_const unsigned char *, size_t, int));
 
+#define mpn_sizeinbase __MPN(sizeinbase)
+__GMP_DECLSPEC size_t mpn_sizeinbase (mp_srcptr, mp_size_t, int);
+
 #define mpn_sqrtrem __MPN(sqrtrem)
 __GMP_DECLSPEC mp_size_t mpn_sqrtrem __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_size_t));
 
@@ -1864,6 +1883,11 @@ __GMP_DECLSPEC void mpn_zero __GMP_PROTO ((mp_ptr, mp_size_t));
 #ifndef mpn_sumdiff_n  /* if not done with cpuvec in a fat binary of in gmp-impl.h*/
 #define mpn_sumdiff_n __MPN(sumdiff_n)
 __GMP_DECLSPEC mp_limb_t mpn_sumdiff_n __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t));
+#endif
+
+#ifndef mpn_nsumdiff_n  /* if not done with cpuvec in a fat binary of in gmp-impl.h*/
+#define mpn_nsumdiff_n __MPN(nsumdiff_n)
+__GMP_DECLSPEC mp_limb_t mpn_nsumdiff_n __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t));
 #endif
 
 /**************** MPN API for FFT ****************/
@@ -2471,17 +2495,17 @@ enum
 };
 
 /* Major version number is the value of __GNU_MP__ too, above and in mp.h. */
-#define __GNU_MP_VERSION 5 
-#define __GNU_MP_VERSION_MINOR 1 
-#define __GNU_MP_VERSION_PATCHLEVEL 3
-#define GMP_VERSION "5.1.3"
+#define __GNU_MP_VERSION 6 
+#define __GNU_MP_VERSION_MINOR 0 
+#define __GNU_MP_VERSION_PATCHLEVEL 0
+#define GMP_VERSION "6.0.0"
 #define __GNU_MP_RELEASE (__GNU_MP_VERSION * 10000 + __GNU_MP_VERSION_MINOR * 100 + __GNU_MP_VERSION_PATCHLEVEL)
 
-#define __MPIR_VERSION 2
-#define __MPIR_VERSION_MINOR 7 
-#define __MPIR_VERSION_PATCHLEVEL 2 
+#define __MPIR_VERSION 3
+#define __MPIR_VERSION_MINOR 0
+#define __MPIR_VERSION_PATCHLEVEL 0
 #if defined( _MSC_VER )
-#define _MSC_MPIR_VERSION "2.7.2"
+#define _MSC_MPIR_VERSION "3.0.0"
 #endif
 #define __MPIR_RELEASE (__MPIR_VERSION * 10000 + __MPIR_VERSION_MINOR * 100 + __MPIR_VERSION_PATCHLEVEL)
 

@@ -116,6 +116,8 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
   DECL_addmul_1 (name)
 #define DECL_sumdiff_n(name) \
   mp_limb_t name __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr,mp_srcptr,mp_size_t))
+#define DECL_nsumdiff_n(name) \
+  DECL_sumdiff_n(name)
 
 #if ! __GMP_WITHIN_CONFIGURE
 #include "config.h"
@@ -948,6 +950,11 @@ __GMP_DECLSPEC void mpn_karasub __GMP_PROTO ((mp_ptr, mp_ptr, mp_size_t));
 __GMP_DECLSPEC mp_limb_t mpn_sumdiff_n __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t));
 #endif
 
+#ifndef mpn_nsumdiff_n
+#define mpn_nsumdiff_n __MPN(nsumdiff_n)
+__GMP_DECLSPEC mp_limb_t mpn_nsumdiff_n __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t));
+#endif
+
 #define mpn_sumdiff_nc __MPN(sumdiff_nc)
 __GMP_DECLSPEC mp_limb_t mpn_sumdiff_nc __GMP_PROTO ((mp_ptr, mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_limb_t));
 
@@ -1072,6 +1079,16 @@ __GMP_DECLSPEC int mpn_is_invert __GMP_PROTO ((mp_srcptr, mp_srcptr, mp_size_t))
 
 #define mpn_invert_trunc __MPN(invert_trunc)
 __GMP_DECLSPEC void mpn_invert_trunc __GMP_PROTO ((mp_ptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr));
+
+#define   mpn_binvert __MPN(binvert)
+__GMP_DECLSPEC void      mpn_binvert __GMP_PROTO ((mp_ptr, mp_srcptr, mp_size_t, mp_ptr));
+#define   mpn_binvert_itch __MPN(binvert_itch)
+__GMP_DECLSPEC mp_size_t mpn_binvert_itch __GMP_PROTO ((mp_size_t)) ATTRIBUTE_CONST;
+
+#define   mpn_powm __MPN(powm)
+__GMP_DECLSPEC void      mpn_powm __GMP_PROTO ((mp_ptr, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_srcptr, mp_size_t, mp_ptr));
+#define   mpn_powlo __MPN(powlo)
+__GMP_DECLSPEC void      mpn_powlo __GMP_PROTO ((mp_ptr, mp_srcptr, mp_srcptr, mp_size_t, mp_size_t, mp_ptr));
 
 #ifndef mpn_divrem_euclidean_qr_1    /* if not done with cpuvec in a fat binary */
 #define mpn_divrem_euclidean_qr_1 __MPN(divrem_euclidean_qr_1)
@@ -2007,6 +2024,23 @@ __GMP_DECLSPEC mp_limb_t gmp_primesieve (mp_ptr, mp_limb_t);
 #define FFT_MULMOD_2EXPP1_CUTOFF 128
 #endif
 
+#if HAVE_NATIVE_mpn_addmul_2 || HAVE_NATIVE_mpn_redc_2
+
+#ifndef REDC_1_TO_REDC_2_THRESHOLD
+#define REDC_1_TO_REDC_2_THRESHOLD       15
+#endif
+#ifndef REDC_2_TO_REDC_N_THRESHOLD
+#define REDC_2_TO_REDC_N_THRESHOLD      100
+#endif
+
+#else
+
+#ifndef REDC_1_TO_REDC_N_THRESHOLD
+#define REDC_1_TO_REDC_N_THRESHOLD      100
+#endif
+
+#endif /* HAVE_NATIVE_mpn_addmul_2 || HAVE_NATIVE_mpn_redc_2 */
+
 #ifndef DC_DIV_QR_THRESHOLD
 #define DC_DIV_QR_THRESHOLD    (3 * MUL_KARATSUBA_THRESHOLD)
 #endif
@@ -2037,6 +2071,10 @@ __GMP_DECLSPEC mp_limb_t gmp_primesieve (mp_ptr, mp_limb_t);
 
 #ifndef INV_DIV_Q_THRESHOLD
 #define INV_DIV_Q_THRESHOLD    (MUL_FFT_THRESHOLD/3)
+#endif
+
+#ifndef BINV_NEWTON_THRESHOLD
+#define BINV_NEWTON_THRESHOLD           300
 #endif
 
 #ifndef DC_DIVAPPR_Q_THRESHOLD
@@ -2643,6 +2681,31 @@ struct bases
 #define __mp_bases __MPN(bases)
 __GMP_DECLSPEC extern const struct bases mp_bases[257];
 
+/* the following are exposed for the benefit of MPIR.Net. */
+
+__GMP_DECLSPEC extern const unsigned char __gmp_digit_value_tab[480];
+
+/* This struct is used to pass local state between functions that comprise the raw i/o interfaces mpz_inp_raw and mpz_out_raw.
+   Previously monolithic, they were split into several calls for the benefit of MPIR.Net.
+   The separation did not change the contract nor the implementation, merely separating the routines into several steps,
+   in order for MPIR.Net to consume the raw format processing code while substituting its own file I/O. */
+typedef struct
+{
+    char* allocated;
+    size_t allocatedSize;
+    char* written;
+    size_t writtenSize;
+} __mpir_out_struct;
+typedef __mpir_out_struct mpir_out_struct[1];
+typedef __mpir_out_struct *mpir_out_ptr;
+/* Part of mpz_inp_raw that decodes input size and allocates appropriate memory. Does not need _GMP_H_HAVE_FILE. Also used by MPIR.Net. */
+__GMP_DECLSPEC void mpz_inp_raw_p __GMP_PROTO ((mpz_ptr x, unsigned char* csize_bytes, mpir_out_ptr out));
+/* Part of mpz_inp_raw that reconstitutes limb data from raw format. Does not need _GMP_H_HAVE_FILE. Also used by MPIR.Net. */
+__GMP_DECLSPEC void mpz_inp_raw_m __GMP_PROTO ((mpz_ptr x, mpir_out_ptr out));
+/* Part of mpz_out_raw that performs raw output into memory in preparation for writing out to a file. Does not need _GMP_H_HAVE_FILE. Also used by MPIR.Net. */
+__GMP_DECLSPEC void mpz_out_raw_m __GMP_PROTO((mpir_out_ptr, mpz_srcptr));
+
+/* End of MPIR.Net consumables */
 
 /* For power of 2 bases this is exact.  For other bases the result is either
    exact or one too big.
@@ -2680,6 +2743,17 @@ __GMP_DECLSPEC extern const struct bases mp_bases[257];
           (result) = (size_t)                                           \
             (__totbits * mp_bases[base].chars_per_bit_exactly) + 1;     \
       }                                                                 \
+  } while (0)
+
+#define MPN_SIZEINBASE_2EXP(result, ptr, size, base2exp)			\
+  do {										\
+    int          __cnt;								\
+    mp_bitcnt_t  __totbits;							\
+    ASSERT ((size) > 0);							\
+    ASSERT ((ptr)[(size)-1] != 0);						\
+    count_leading_zeros (__cnt, (ptr)[(size)-1]);				\
+    __totbits = (mp_bitcnt_t) (size) * GMP_NUMB_BITS - (__cnt - GMP_NAIL_BITS);	\
+    (result) = (__totbits + (base2exp)-1) / (base2exp);				\
   } while (0)
 
 /* eliminate mp_bases lookups for base==16 */
@@ -4304,6 +4378,10 @@ extern mp_size_t                     mullow_dc_threshold;
 #define MULLOW_MUL_THRESHOLD         mullow_mul_threshold
 extern mp_size_t                     mullow_mul_threshold;
 
+#undef  MULMID_TOOM42_THRESHOLD
+#define MULMID_TOOM42_THRESHOLD      mulmid_toom42_threshold
+extern mp_size_t                     mulmid_toom42_threshold;
+
 #undef  MULHIGH_BASECASE_THRESHOLD
 #define MULHIGH_BASECASE_THRESHOLD   mulhigh_basecase_threshold
 extern mp_size_t                     mulhigh_basecase_threshold;
@@ -4354,6 +4432,10 @@ extern mp_size_t                     dc_div_q_threshold;
 #define INV_DIV_Q_THRESHOLD          inv_div_q_threshold
 extern mp_size_t                     inv_div_q_threshold;
 
+#undef BINV_NEWTON_THRESHOLD
+#define BINV_NEWTON_THRESHOLD        binv_newton_threshold
+extern mp_size_t                     binv_newton_threshold;
+
 #undef  DC_DIVAPPR_Q_THRESHOLD
 #define DC_DIVAPPR_Q_THRESHOLD       dc_divappr_q_threshold
 extern mp_size_t                     dc_divappr_q_threshold;
@@ -4361,11 +4443,6 @@ extern mp_size_t                     dc_divappr_q_threshold;
 #undef  INV_DIVAPPR_Q_THRESHOLD
 #define INV_DIVAPPR_Q_THRESHOLD      inv_divappr_q_threshold
 extern mp_size_t                     inv_divappr_q_threshold;
-
-
-#undef  POWM_THRESHOLD
-#define POWM_THRESHOLD               powm_threshold
-extern mp_size_t                     powm_threshold;
 
 #undef  ROOTREM_THRESHOLD
 #define ROOTREM_THRESHOLD            rootrem_threshold
@@ -4394,6 +4471,18 @@ extern mp_size_t                     mod_1_2_threshold;
 #undef  MOD_1_3_THRESHOLD
 #define MOD_1_3_THRESHOLD            mod_1_3_threshold
 extern mp_size_t                     mod_1_3_threshold;
+
+#undef	REDC_1_TO_REDC_2_THRESHOLD
+#define REDC_1_TO_REDC_2_THRESHOLD	redc_1_to_redc_2_threshold
+extern mp_size_t			redc_1_to_redc_2_threshold;
+
+#undef	REDC_2_TO_REDC_N_THRESHOLD
+#define REDC_2_TO_REDC_N_THRESHOLD	redc_2_to_redc_n_threshold
+extern mp_size_t			redc_2_to_redc_n_threshold;
+
+#undef	REDC_1_TO_REDC_N_THRESHOLD
+#define REDC_1_TO_REDC_N_THRESHOLD	redc_1_to_redc_n_threshold
+extern mp_size_t			redc_1_to_redc_n_threshold;
 
 #undef	MATRIX22_STRASSEN_THRESHOLD
 #define MATRIX22_STRASSEN_THRESHOLD	matrix22_strassen_threshold
