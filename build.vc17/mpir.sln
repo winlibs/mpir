@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_doc", "_doc", "{02EA681E-C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_with_boost", "..\test_with_boost\test_with_boost\test_with_boost.vcxproj", "{6A1B81E4-ADF0-4F06-BE8E-D7D8A98D54A7}"
 	ProjectSection(ProjectDependencies) = postProject
-		{49DD6B75-0009-40DC-BE9E-383C565494C8} = {49DD6B75-0009-40DC-BE9E-383C565494C8}
+		{4A742B65-9836-4F46-8310-728F046A31C1} = {4A742B65-9836-4F46-8310-728F046A31C1}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{64864D5D-EC33-49C0-9D6C-C7E91F061334}"
@@ -39,17 +39,19 @@ Global
 		{EF286BFC-F78C-45A4-A818-C6C4CCB96D57}.Debug|x64.ActiveCfg = Debug|x64
 		{EF286BFC-F78C-45A4-A818-C6C4CCB96D57}.Release|x64.ActiveCfg = Release|x64
 		{4A742B65-9836-4F46-8310-728F046A31C1}.Debug|x64.ActiveCfg = Debug|x64
+		{4A742B65-9836-4F46-8310-728F046A31C1}.Debug|x64.Build.0 = Debug|x64
 		{4A742B65-9836-4F46-8310-728F046A31C1}.Release|x64.ActiveCfg = Release|x64
+		{4A742B65-9836-4F46-8310-728F046A31C1}.Release|x64.Build.0 = Release|x64
 		{935C1E48-A26F-4E73-B8EA-B163F21E833B}.Debug|x64.ActiveCfg = Debug|x64
 		{935C1E48-A26F-4E73-B8EA-B163F21E833B}.Release|x64.ActiveCfg = Release|x64
 		{49DD6B75-0009-40DC-BE9E-383C565494C8}.Debug|x64.ActiveCfg = Debug|x64
-		{49DD6B75-0009-40DC-BE9E-383C565494C8}.Debug|x64.Build.0 = Debug|x64
 		{49DD6B75-0009-40DC-BE9E-383C565494C8}.Release|x64.ActiveCfg = Release|x64
-		{49DD6B75-0009-40DC-BE9E-383C565494C8}.Release|x64.Build.0 = Release|x64
 		{D35A0A8E-F81A-4F97-828E-8CAB4B9DBFFC}.Debug|x64.ActiveCfg = Debug|x64
 		{D35A0A8E-F81A-4F97-828E-8CAB4B9DBFFC}.Release|x64.ActiveCfg = Release|x64
 		{6A1B81E4-ADF0-4F06-BE8E-D7D8A98D54A7}.Debug|x64.ActiveCfg = Debug|x64
+		{6A1B81E4-ADF0-4F06-BE8E-D7D8A98D54A7}.Debug|x64.Build.0 = Debug|x64
 		{6A1B81E4-ADF0-4F06-BE8E-D7D8A98D54A7}.Release|x64.ActiveCfg = Release|x64
+		{6A1B81E4-ADF0-4F06-BE8E-D7D8A98D54A7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

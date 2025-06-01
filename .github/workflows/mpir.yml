@@ -12,7 +12,7 @@ on:
       - '**'
   pull_request:
 jobs:
-  msvc-lib_mpir_core2-x64:
+  msvc-lib_mpir_gc-x64:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,27 +34,22 @@ jobs:
         run: |
           ./bootstrap.bat
           ./b2 headers
-      - name: update-yasm
-        shell: cmd
-        working-directory: ${{ runner.workspace }}/mpir/build.vc/yasm/1.3.0
-        run: |
-          del /Q .\yasm.exe
-          curl -L -o yasm.exe https://github.com/yasm/yasm/releases/download/v1.3.0/yasm-1.3.0-win64.exe
-          echo "Is the YASM download here?"
-          dir yasm.exe
-      - name: msvc-lib_mpir_core2-x64
+      - name: msvc-lib_mpir_gc-x64
         shell: cmd
         working-directory: ./
         run: |
-          cd build.vc17\lib_mpir_core2
+          cd build.vc17
+          echo "Set environment"
           echo.
-          dir %CD%\..\..\build.vc\yasm\1.3.0\yasm.exe
-          echo.
-          echo "Query YASM version"
-          echo.
-          %CD%\..\..\build.vc\yasm\1.3.0\yasm.exe --version
-          echo.
+          set INCLUDE=%cd%
+          set INCLUDE=${{ runner.workspace }}\boost-root;%INCLUDE%
           echo "Run MSBuild"
           echo.
-          MSBuild -m %CD%\..\mpir.sln -p:useenv=false -p:Configuration=Release -p:Platform=x64 /t:Rebuild
-          dir %CD%\..\lib\x64\Release
+          MSBuild -m mpir.sln -p:useenv=true -p:Configuration=Release -p:Platform=x64 /t:Rebuild
+          echo "Verify build artifacts"
+          echo.
+          dir %CD%\lib_mpir_gc\x64\Release\mpir_a.lib
+          dir %CD%\_Out\test_with_boost.exe
+          echo "Execute test program"
+          echo.
+          %CD%\_Out\test_with_boost.exe
