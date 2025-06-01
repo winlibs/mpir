@@ -46,15 +46,14 @@ jobs:
         shell: cmd
         working-directory: ./
         run: |
-          set PATH=%CD%\build.vc\yasm\1.3.0;%PATH%
-          cd build.vc17
+          cd build.vc17\lib_mpir_core2
+          dir %CD%\..\build.vc\yasm\1.3.0\yasm.exe
+          echo.
           echo "Query YASM version"
           echo.
-          yasm.exe --version
-          echo.
-          dir %CD%\..\build.vc\yasm\1.3.0\yasm.exe
+          %CD%\..\build.vc\yasm\1.3.0\yasm.exe --version
           echo.
           echo "Run MSBuild"
           echo.
-          MSBuild -m mpir.sln -p:useenv=false -p:Configuration=Release -p:Platform=x64 /t:Rebuild
+          MSBuild -m ..\mpir.sln -p:useenv=false -p:Configuration=Release -p:Platform=x64 /t:Rebuild
           dir %CD%\..\lib\x64\Release
